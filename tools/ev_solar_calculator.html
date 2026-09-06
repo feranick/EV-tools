@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EV Solar Charging & Driving Calculator</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --accent: #38bdf8;
+    --accent-hover: #0ea5e9;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --success-bg: #064e3b;
+    --success-text: #6ee7b7;
+    --warning-bg: #78350f;
+    --warning-text: #fcd34d;
+    --danger-bg: #7f1d1d;
+    --danger-text: #fca5a5;
+    --input-bg: #0f172a;
+    --input-border: #475569;
+    --highlight: #3b82f6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    padding: 24px 16px;
+    line-height: 1.5;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .title-group h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .title-group p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
+
+  .global-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .control-badge {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+  }
+
+  .action-btn-top {
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: var(--accent);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+
+  .action-btn-top:hover {
+    background: rgba(56, 189, 248, 0.3);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .reset-btn-top {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-btn-top:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: #fff;
+  }
+
+  .save-tag {
+    font-size: 0.78rem;
+    color: var(--success-text);
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+  }
+
+  select, input[type="number"], input[type="text"] {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  select:focus, input:focus {
+    border-color: var(--accent);
+  }
+
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 960px) {
+    .main-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .card-header h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .input-with-unit {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-with-unit input {
+    width: 100%;
+    padding-right: 50px;
+  }
+
+  .unit-tag {
+    position: absolute;
+    right: 12px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .slider-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+  }
+
+  .preset-buttons {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .preset-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .preset-btn:hover, .preset-btn.active {
+    background: var(--accent);
+    color: #0f172a;
+    font-weight: 600;
+    border-color: var(--accent);
+  }
+
+  .switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0,0,0,0.2);
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+
+  .switch-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+  }
+
+  .switch input { opacity: 0; width: 0; height: 0; }
+
+  .slider-toggle {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #475569;
+    transition: .3s;
+    border-radius: 26px;
+  }
+
+  .slider-toggle:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider-toggle {
+    background-color: var(--accent);
+  }
+
+  input:checked + .slider-toggle:before {
+    transform: translateX(22px);
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .kpi-title {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .kpi-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .kpi-unit {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .kpi-subtext {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .status-banner {
+    padding: 14px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-size: 0.92rem;
+  }
+
+  .status-banner.success {
+    background: var(--success-bg);
+    border: 1px solid rgba(110, 231, 183, 0.3);
+    color: var(--success-text);
+  }
+
+  .status-banner.warning {
+    background: var(--warning-bg);
+    border: 1px solid rgba(252, 211, 77, 0.3);
+    color: var(--warning-text);
+  }
+
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.88rem;
+  }
+
+  .detail-table tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .detail-table td {
+    padding: 10px 4px;
+  }
+
+  .detail-table td:last-child {
+    text-align: right;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+
+  .detail-table td:first-child {
+    color: var(--text-muted);
+  }
+
+  .rec-box {
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 4px solid var(--accent);
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    margin-top: 14px;
+  }
+
+  .rec-box ul {
+    margin-left: 18px;
+    margin-top: 6px;
+  }
+
+  .rec-box li {
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="title-group">
+      <h1 id="txt-app-title">⚡ EV Solar Charging & Driving Calculator</h1>
+      <p id="txt-app-subtitle">Multi-EV Daily Commute & Solar Self-Consumption Optimizer (With / Without Battery Storage)</p>
+    </div>
+    <div class="global-controls">
+      <!-- Save Indicator -->
+      <span class="save-tag" id="save-indicator">💾 Auto-Saved</span>
+
+      <!-- JSON Export & Import Buttons -->
+      <button class="action-btn-top" id="btn-export-json" onclick="exportJsonConfig()">
+        <span>📥</span> <span id="txt-export-json">Export JSON</span>
+      </button>
+
+      <button class="action-btn-top" id="btn-load-json" onclick="triggerJsonImport()">
+        <span>📂</span> <span id="txt-load-json">Load JSON</span>
+      </button>
+      <input type="file" id="json-file-input" accept=".json,application/json" onchange="importJsonConfig(event)" style="display: none;">
+
+      <!-- Language Selector -->
+      <div class="control-badge">
+        <span id="lbl-lang">Language:</span>
+        <select id="lang-selector" onchange="onLanguageChange()">
+          <option value="en" selected>English</option>
+          <option value="it">Italiano</option>
+        </select>
+      </div>
+
+      <!-- Unit Selector -->
+      <div class="control-badge">
+        <span id="lbl-units">Units:</span>
+        <select id="unit-selector" onchange="onUnitChange()">
+          <option value="si" id="opt-unit-si" selected>Metric (SI: km, km/kWh)</option>
+          <option value="imperial" id="opt-unit-imp">Imperial (US: miles, mi/kWh)</option>
+        </select>
+      </div>
+
+      <!-- Reset Defaults Button -->
+      <button class="reset-btn-top" id="btn-reset-defaults" onclick="resetDefaults()">Reset Defaults</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <!-- LEFT COLUMN: INPUTS -->
+    <div class="input-column">
+      
+      <!-- VEHICLE SELECTION CARD -->
+      <div class="card">
+        <div class="card-header">
+          <h2 id="card-title-ev">🚗 Electric Vehicle Setup</h2>
+          <span id="vehicle-quick-spec" style="font-size: 0.8rem; color: var(--accent);"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="ev-select" id="lbl-ev-select">Select EV Model</label>
+          <select id="ev-select" style="width: 100%;" onchange="onVehicleSelect()">
+            <!-- Populated dynamically via JS -->
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ev-battery" id="lbl-ev-battery">EV Battery Capacity</label>
+            <div class="input-with-unit">
+              <input type="number" id="ev-battery" step="0.5" min="10" max="250" oninput="calculate()">
+              <span class="unit-tag">kWh</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="ev-efficiency" id="lbl-ev-efficiency">Efficiency / Consumption</label>
+            <div class="input-with-unit">
+              <input type="number" id="ev-efficiency" step="0.05" min="1" max="20" oninput="onEfficiencyInput()">
+              <span class="unit-tag" id="tag-ev-efficiency">km/kWh</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+          <span><span id="lbl-est-range">Full Battery Estimated Range:</span> <strong id="est-full-range" style="color: #fff;">0</strong> <span class="dist-unit">km</span></span>
+          <span><span id="lbl-spec-cons">Specific Consumption:</span> <strong id="est-wh-unit" style="color: #fff;">0</strong> <span id="tag-wh-unit">Wh/km</span></span>
+        </div>
+      </div>
+
+      <!-- DAILY DRIVING CARD -->
+      <div class="card">
+        <div class="card-header">
+          <h2 id="card-title-commute">📍 Daily Commute / Driving</h2>
+        </div>
+
+        <div class="form-group">
+          <label for="daily-distance" id="lbl-daily-distance">Daily Travel Distance</label>
+          <div class="input-with-unit">
+            <input type="number" id="daily-distance" step="1" min="1" max="1000" oninput="onDistanceInput()">
+            <span class="unit-tag dist-unit">km</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" id="daily-dist-slider" min="1" max="300" step="1" oninput="onDistanceSlider()">
+          </div>
+        </div>
+      </div>
+
+      <!-- SOLAR PV INSTALLATION CARD -->
+      <div class="card">
+        <div class="card-header">
+          <h2 id="card-title-pv">☀️ Solar PV Generation</h2>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pv-power" id="lbl-pv-power">Solar Peak Production (Excel default: 36 kW)</label>
+            <div class="input-with-unit">
+              <input type="number" id="pv-power" value="36.0" step="0.5" min="1" max="100" oninput="calculate()">
+              <span class="unit-tag">kW</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="sun-hours" id="lbl-sun-hours">Average Peak Sun Hours</label>
+            <div class="input-with-unit">
+              <input type="number" id="sun-hours" value="4.5" step="0.1" min="1" max="10" oninput="calculate()">
+              <span class="unit-tag">hrs/day</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px; font-size: 0.82rem; color: var(--text-muted);">
+          <span id="lbl-est-gen">Est. Daily Total Solar Generation:</span> <strong id="pv-daily-kwh" style="color: var(--accent);">162.0</strong> kWh/day
+        </div>
+      </div>
+
+      <!-- BATTERY STORAGE CARD (With DoD Reservation) -->
+      <div class="card">
+        <div class="card-header">
+          <h2 id="card-title-storage">🔋 Stationary Battery Storage</h2>
+        </div>
+
+        <div class="switch-container">
+          <span class="switch-label" id="lbl-include-storage">Include Stationary Battery Storage</span>
+          <label class="switch">
+            <input type="checkbox" id="storage-toggle" checked onchange="toggleStorage()">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+
+        <div id="storage-config-panel">
+          <div class="form-group">
+            <label for="storage-capacity" id="lbl-storage-capacity">Home Battery Storage Capacity</label>
+            <div class="input-with-unit">
+              <input type="number" id="storage-capacity" value="10.0" step="0.5" min="1" max="100" oninput="calculate()">
+              <span class="unit-tag">kWh</span>
+            </div>
+          </div>
+          <div class="preset-buttons">
+            <button class="preset-btn" onclick="setStorageCapacity(5)">5 kWh</button>
+            <button class="preset-btn active" onclick="setStorageCapacity(10)">10 kWh (Tesla Tab)</button>
+            <button class="preset-btn" onclick="setStorageCapacity(15)">15 kWh</button>
+            <button class="preset-btn" onclick="setStorageCapacity(20)">20 kWh (Skoda Tab)</button>
+            <button class="preset-btn" onclick="setStorageCapacity(30)">30 kWh</button>
+          </div>
+
+          <!-- DoD Reservation / Minimum SoC Reserve Floor -->
+          <div class="form-group" style="margin-top: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label for="dod-reserve" id="lbl-dod-reserve" style="margin-bottom: 0;">DoD Reservation / Min SoC Reserve Floor</label>
+              <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600;" id="disp-dod-reserve">20%</span>
+            </div>
+            <div class="slider-row" style="margin-top: 6px;">
+              <input type="range" id="dod-reserve" min="0" max="50" step="5" value="20" oninput="onDodSlider()">
+              <div class="input-with-unit" style="width: 90px;">
+                <input type="number" id="dod-reserve-num" min="0" max="50" step="1" value="20" oninput="onDodInput()">
+                <span class="unit-tag">%</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
+              <span><span id="lbl-usable-ev">Usable for EV:</span> <strong id="disp-usable-kwh" style="color: var(--accent);">8.0</strong> kWh (<span id="disp-effective-dod">80</span>% DoD)</span>
+              <span><span id="lbl-reserved-home">Reserved for Home:</span> <strong id="disp-reserved-kwh" style="color: #fcd34d;">2.0</strong> kWh</span>
+            </div>
+            <div class="preset-buttons" style="margin-top: 8px;">
+              <button class="preset-btn" id="btn-reserve-10" onclick="setDodReserve(10)">10% Reserve (90% DoD)</button>
+              <button class="preset-btn active" id="btn-reserve-20" onclick="setDodReserve(20)">20% Reserve (Recommended)</button>
+              <button class="preset-btn" id="btn-reserve-30" onclick="setDodReserve(30)">30% Reserve (High Backup)</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="no-storage-msg" style="display: none; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 6px; font-size: 0.85rem; color: var(--text-muted);">
+          <!-- Dynamic message in JS -->
+        </div>
+      </div>
+
+      <!-- EV AC CHARGER CARD -->
+      <div class="card card-wallbox-container">
+        <div class="card-header">
+          <h2 id="card-title-wallbox">🔌 AC Wallbox Charger</h2>
+        </div>
+
+        <div class="form-group">
+          <label for="ac-rate" id="lbl-ac-rate">Charging Rate (Excel default: 11 kW)</label>
+          <div class="input-with-unit">
+            <input type="number" id="ac-rate" value="11.0" step="0.1" min="1.4" max="22" oninput="calculate()">
+            <span class="unit-tag">kW</span>
+          </div>
+          <div class="preset-buttons">
+            <button class="preset-btn" onclick="setAcRate(2.3)">2.3 kW (10A 1-Ph)</button>
+            <button class="preset-btn" onclick="setAcRate(3.7)">3.7 kW (16A 1-Ph)</button>
+            <button class="preset-btn" onclick="setAcRate(7.4)">7.4 kW (32A 1-Ph)</button>
+            <button class="preset-btn active" onclick="setAcRate(11.0)">11.0 kW (16A 3-Ph)</button>
+            <button class="preset-btn" onclick="setAcRate(22.0)">22.0 kW (32A 3-Ph)</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: RESULTS & OPTIMIZATION -->
+    <div class="results-column">
+      
+      <!-- KPI DASHBOARD -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-title" id="kpi-title-daily-energy">Daily Energy Consumed</span>
+          <div class="kpi-value">
+            <span id="kpi-daily-energy">7.8</span>
+            <span class="kpi-unit">kWh</span>
+          </div>
+          <span class="kpi-subtext"><span id="kpi-ev-soc-drop">10.0</span>% <span id="kpi-sub-pack">of EV pack used daily</span></span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title" id="kpi-title-daily-time">Daily Recharge Time (Wallbox)</span>
+          <div class="kpi-value">
+            <span id="kpi-daily-recharge-time">43</span>
+            <span class="kpi-unit">min</span>
+          </div>
+          <span class="kpi-subtext" id="kpi-daily-recharge-hrs">≈ 43m at 11 kW</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title" id="kpi-storage-title">PV Storage Recharge</span>
+          <div class="kpi-value">
+            <span id="kpi-storage-recharge-time">13</span>
+            <span class="kpi-unit">min</span>
+          </div>
+          <span class="kpi-subtext" id="kpi-storage-subtext">to replenish usable storage via solar</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title" id="kpi-title-solar-balance">Solar Energy Balance</span>
+          <div class="kpi-value">
+            <span id="kpi-solar-balance">+154.2</span>
+            <span class="kpi-unit">kWh</span>
+          </div>
+          <span class="kpi-subtext" id="kpi-sub-balance">net daily generation surplus</span>
+        </div>
+      </div>
+
+      <!-- STATUS BANNER -->
+      <div id="status-banner" class="status-banner">
+        <div id="status-icon" style="font-size: 1.4rem;">💡</div>
+        <div>
+          <div id="status-title" style="font-weight: 700; margin-bottom: 2px;">Analyzing System...</div>
+          <div id="status-desc" style="font-size: 0.85rem; opacity: 0.95;">Calculating solar self-consumption parameters.</div>
+        </div>
+      </div>
+
+      <!-- DETAILED BREAKDOWN CARD -->
+      <div class="card">
+        <div class="card-header">
+          <h2 id="card-title-diagnostics">📊 Energy & Charging Diagnostics</h2>
+        </div>
+
+        <table class="detail-table">
+          <tbody>
+            <tr>
+              <td id="tbl-row-ev-cap">EV Battery Capacity</td>
+              <td><span id="table-ev-battery">78.0</span> kWh</td>
+            </tr>
+            <tr>
+              <td id="tbl-row-eff-rate">Efficiency Rate</td>
+              <td><span id="table-ev-eff">6.40</span> <span id="table-eff-unit">km/kWh</span></td>
+            </tr>
+            <tr>
+              <td id="tbl-row-daily-dist">Daily Driving Distance</td>
+              <td><span id="table-daily-dist">50.0</span> <span class="dist-unit">km</span></td>
+            </tr>
+            <tr>
+              <td id="tbl-row-daily-demand">Daily Commute Energy Demand</td>
+              <td><span id="table-daily-energy">7.81</span> kWh</td>
+            </tr>
+            <tr>
+              <td id="tbl-row-wallbox-time">Wallbox Daily Recharge Time (Cell B14/B12)</td>
+              <td><span id="table-daily-wallbox-time">43</span> min</td>
+            </tr>
+            <tr id="row-storage-cap">
+              <td id="tbl-row-storage-cap">Home Storage Nominal Capacity</td>
+              <td><span id="table-storage-cap">10.0</span> kWh</td>
+            </tr>
+            <tr id="row-storage-reserve">
+              <td id="tbl-row-storage-reserve">DoD Reserve Floor / Home Backup</td>
+              <td><span id="table-storage-reserve">20% (2.0 kWh preserved)</span></td>
+            </tr>
+            <tr id="row-storage-usable">
+              <td id="tbl-row-storage-usable">Effective Usable Storage for EV</td>
+              <td><span id="table-storage-usable" style="font-weight: 700; color: var(--accent);">8.0</span> kWh</td>
+            </tr>
+            <tr id="row-storage-balance">
+              <td id="tbl-row-storage-net">Home Storage Usable Net Balance</td>
+              <td><span id="table-storage-net" style="color: var(--success-text);">+0.19 kWh (Surplus)</span></td>
+            </tr>
+            <tr id="row-pv-recharge">
+              <td id="tbl-row-pv-recharge">PV Storage Recharge Time (Cell B15/B13)</td>
+              <td><span id="table-pv-recharge-time">13</span> min</td>
+            </tr>
+            <tr id="row-direct-pv">
+              <td id="tbl-row-direct-pv">Direct Daytime Solar Charge Time (commute)</td>
+              <td><span id="table-direct-pv-time">43</span> min</td>
+            </tr>
+            <tr>
+              <td id="tbl-row-solar-margin">Instantaneous Solar Margin during Charging</td>
+              <td><span id="table-solar-margin">+25.0 kW excess solar</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TOTAL CHARGING BENCHMARKS -->
+      <div class="card">
+        <div class="card-header">
+          <h2 id="card-title-benchmarks">⏱️ Full Battery Recharge Benchmarks</h2>
+        </div>
+
+        <table class="detail-table">
+          <tbody>
+            <tr>
+              <td id="tbl-row-time-20-80">20% → 80% Recharge Time (Cell B18 / B16)</td>
+              <td><strong id="table-time-20-80" style="color: var(--accent);">4.25</strong> <span class="time-unit-hrs">hours</span> (<span id="table-time-20-80-fmt">4h 15m</span>)</td>
+            </tr>
+            <tr>
+              <td id="tbl-row-time-0-100">0% → 100% Recharge Time (Cell B19 / B17)</td>
+              <td><strong id="table-time-0-100" style="color: var(--accent);">7.09</strong> <span class="time-unit-hrs">hours</span> (<span id="table-time-0-100-fmt">7h 05m</span>)</td>
+            </tr>
+            <tr>
+              <td id="tbl-row-solar-full">Solar Energy Required for 0-100% Full Charge</td>
+              <td><span id="table-solar-full-charge">78.0</span> kWh (<span id="table-solar-full-sun">≈ 2.2 hrs of peak solar</span>)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="rec-box" id="optimization-recommendations">
+          <strong id="rec-box-title">⚡ Operational Optimization Strategy:</strong>
+          <ul id="recommendations-list">
+            <!-- Populated dynamically -->
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// TRANSLATION DICTIONARIES (English & Italian)
+// ==========================================
+const I18N = {
+  en: {
+    app_title: "⚡ EV Solar Charging & Driving Calculator",
+    app_subtitle: "Multi-EV Daily Commute & Solar Self-Consumption Optimizer (With / Without Battery Storage)",
+    lang_label: "Language:",
+    unit_label: "Units:",
+    unit_si: "Metric (SI: km, km/kWh)",
+    unit_imperial: "Imperial (US: miles, mi/kWh)",
+    card_ev: "🚗 Electric Vehicle Setup",
+    lbl_ev_select: "Select EV Model",
+    lbl_ev_battery: "EV Battery Capacity",
+    lbl_ev_efficiency: "Efficiency / Consumption",
+    lbl_est_range: "Full Battery Estimated Range:",
+    lbl_spec_cons: "Specific Consumption:",
+    card_commute: "📍 Daily Commute / Driving",
+    lbl_daily_distance: "Daily Travel Distance",
+    card_pv: "☀️ Solar PV Generation",
+    lbl_pv_power: "Solar Peak Production (Excel default: 36 kW)",
+    lbl_sun_hours: "Average Peak Sun Hours",
+    lbl_est_gen: "Est. Daily Total Solar Generation:",
+    card_storage: "🔋 Stationary Battery Storage",
+    lbl_include_storage: "Include Stationary Battery Storage",
+    lbl_storage_capacity: "Home Battery Storage Capacity",
+    lbl_dod_reserve: "DoD Reservation / Min SoC Reserve Floor",
+    lbl_usable_ev: "Usable for EV:",
+    lbl_reserved_home: "Reserved for Home:",
+    btn_reserve_10: "10% Reserve (90% DoD)",
+    btn_reserve_20: "20% Reserve (Recommended)",
+    btn_reserve_30: "30% Reserve (High Backup)",
+    msg_no_storage: "ℹ️ <strong>Direct Solar Mode Active:</strong> The EV will charge directly from live solar production during daylight hours without buffer storage.",
+    card_wallbox: "🔌 AC Wallbox Charger",
+    lbl_ac_rate: "Charging Rate (Excel default: 11 kW)",
+    btn_reset: "Reset Defaults",
+    auto_saved: "💾 Auto-Saved",
+    btn_export_json: "Export JSON",
+    btn_load_json: "Load JSON",
+    json_loaded_msg: "📂 Config Loaded from File",
+    kpi_daily_energy: "Daily Energy Consumed",
+    kpi_pack_drop: "of EV pack used daily",
+    kpi_daily_time: "Daily Recharge Time (Wallbox)",
+    kpi_storage_recharge: "PV Storage Recharge",
+    kpi_storage_direct: "Direct Solar Charge Time",
+    kpi_storage_sub_pv: "to replenish usable storage via solar",
+    kpi_storage_sub_direct: "pure daytime solar charge duration",
+    kpi_solar_balance: "Solar Energy Balance",
+    kpi_solar_balance_sub: "net daily generation surplus",
+    card_diagnostics: "📊 Energy & Charging Diagnostics",
+    tbl_ev_cap: "EV Battery Capacity",
+    tbl_eff_rate: "Efficiency Rate",
+    tbl_daily_dist: "Daily Driving Distance",
+    tbl_daily_demand: "Daily Commute Energy Demand",
+    tbl_wallbox_time: "Wallbox Daily Recharge Time (Cell B14/B12)",
+    tbl_storage_cap: "Home Storage Nominal Capacity",
+    tbl_storage_reserve: "DoD Reserve Floor / Home Backup",
+    tbl_storage_usable: "Effective Usable Storage for EV",
+    tbl_storage_net: "Home Storage Usable Net Balance",
+    tbl_pv_recharge: "PV Storage Recharge Time (Cell B15/B13)",
+    tbl_direct_solar_time: "Direct Daytime Solar Charge Time (commute)",
+    tbl_solar_margin: "Instantaneous Solar Margin during Charging",
+    card_benchmarks: "⏱️ Full Battery Recharge Benchmarks",
+    tbl_time_20_80: "20% → 80% Recharge Time (Cell B18 / B16)",
+    tbl_time_0_100: "0% → 100% Recharge Time (Cell B19 / B17)",
+    tbl_solar_full: "Solar Energy Required for 0-100% Full Charge",
+    rec_title: "⚡ Operational Optimization Strategy:",
+    hours_unit: "hours",
+    approx_at: "≈ {time} at {rate} kW",
+    excess_solar: "+{kw} kW excess solar during charging",
+    grid_needed: "{kw} kW grid supplement needed during charging",
+    sun_hours_equiv: "≈ {h} hrs of peak solar"
+  },
+  it: {
+    app_title: "⚡ Calcolatore Ricarica Solare EV & Guida",
+    app_subtitle: "Ottimizzatore Ricarica e Autoconsumo Solare per Pendolarismo Quotidiano (Con / Senza Batteria d'Accumulo)",
+    lang_label: "Lingua:",
+    unit_label: "Unità:",
+    unit_si: "Metrico (SI: km, km/kWh)",
+    unit_imperial: "Imperiale (US: miglia, mi/kWh)",
+    card_ev: "🚗 Configurazione Veicolo Elettrico (EV)",
+    lbl_ev_select: "Seleziona Modello EV",
+    lbl_ev_battery: "Batteria EV",
+    lbl_ev_efficiency: "Consumo / Efficienza",
+    lbl_est_range: "Autonomia stimata batteria completa:",
+    lbl_spec_cons: "Consumo specifico:",
+    card_commute: "📍 Percorso Giornaliero",
+    lbl_daily_distance: "Km giornalieri",
+    card_pv: "☀️ Produzione Pannelli Solari (FV)",
+    lbl_pv_power: "Produzione pannelli di picco (Excel default: 36 kW)",
+    lbl_sun_hours: "Ore di sole di picco medie",
+    lbl_est_gen: "Stima produzione solare giornaliera:",
+    card_storage: "🔋 Batteria Pannelli / Accumulo Stazionario",
+    lbl_include_storage: "Includi Batteria Stazionaria (Accumulo)",
+    lbl_storage_capacity: "Batteria Pannelli (Capacità Nominale)",
+    lbl_dod_reserve: "Riserva DoD / Soglia Minima di SoC di Sicurezza",
+    lbl_usable_ev: "Utilizzabile per EV:",
+    lbl_reserved_home: "Riservato per la Casa:",
+    btn_reserve_10: "10% Riserva (90% DoD)",
+    btn_reserve_20: "20% Riserva (Consigliato)",
+    btn_reserve_30: "30% Riserva (Alto Backup)",
+    msg_no_storage: "ℹ️ <strong>Modalità Solare Diretto Attiva:</strong> L'EV si ricarica direttamente dalla produzione solare istantanea durante le ore diurne senza accumulo tampone.",
+    card_wallbox: "🔌 Wallbox AC / Tasso di Ricarica",
+    lbl_ac_rate: "Tasso di ricarica AC (Excel default: 11 kW)",
+    btn_reset: "Ripristina Predefiniti",
+    auto_saved: "💾 Salvato in Locale",
+    btn_export_json: "Esporta JSON",
+    btn_load_json: "Carica JSON",
+    json_loaded_msg: "📂 Configurazione Caricata da File",
+    kpi_daily_energy: "Energia Usata Giornaliera",
+    kpi_pack_drop: "del pacco EV usato ogni giorno",
+    kpi_daily_time: "Tempo di Ricarica EV Giornaliero",
+    kpi_storage_recharge: "Ricarica Batteria Pannelli",
+    kpi_storage_direct: "Tempo Ricarica Solare Diretto",
+    kpi_storage_sub_pv: "per reintegrare l'accumulo con il solare",
+    kpi_storage_sub_direct: "durata ricarica solare diurna diretta",
+    kpi_solar_balance: "Bilancio Energetico Solare",
+    kpi_solar_balance_sub: "surplus di generazione giornaliero netto",
+    card_diagnostics: "📊 Diagnostica Ricarica ed Energia",
+    tbl_ev_cap: "Batteria EV (Capacità)",
+    tbl_eff_rate: "Consumo (Efficienza)",
+    tbl_daily_dist: "Km giornalieri",
+    tbl_daily_demand: "Energia usata giornaliera",
+    tbl_wallbox_time: "Tempo di ricarica EV giornaliero (Cella B14/B12)",
+    tbl_storage_cap: "Batteria Pannelli (Capacità Nominale)",
+    tbl_storage_reserve: "Riserva DoD / Backup Casa",
+    tbl_storage_usable: "Capacità Effettiva Utilizzabile per EV",
+    tbl_storage_net: "Bilancio Netto Batteria Pannelli",
+    tbl_pv_recharge: "Ricarica batteria pannelli (Cella B15/B13)",
+    tbl_direct_solar_time: "Tempo Ricarica Solare Diurna Diretta",
+    tbl_solar_margin: "Margine Solare Istantaneo durante la Ricarica",
+    card_benchmarks: "⏱️ Riferimenti di Ricarica Totale Pacco",
+    tbl_time_20_80: "Tempo di ricarica totale 20-80% (Cella B18 / B16)",
+    tbl_time_0_100: "Tempo di ricarica totale 0-100% (Cella B19 / B17)",
+    tbl_solar_full: "Energia Solare per Ricarica Totale 0-100%",
+    rec_title: "⚡ Strategia Operativa di Ottimizzazione:",
+    hours_unit: "ore",
+    approx_at: "≈ {time} a {rate} kW",
+    excess_solar: "+{kw} kW surplus solare durante la ricarica",
+    grid_needed: "{kw} kW supplemento rete necessario durante la ricarica",
+    sun_hours_equiv: "≈ {h} ore di sole di picco"
+  }
+};
+
+// ==========================================
+// VEHICLE DATABASE
+// ==========================================
+const VEHICLE_DATA = [
+  // Tesla Model Y
+  { group: "Tesla Model Y", name: "Model Y Long Range AWD (78 kWh - Dual Motor)", battery: 78.0, eff_km: 6.40 },
+  { group: "Tesla Model Y", name: "Model Y Long Range RWD (78 kWh - Single Motor)", battery: 78.0, eff_km: 7.40 },
+  { group: "Tesla Model Y", name: "Model Y Standard RWD (60 kWh - LFP)", battery: 60.0, eff_km: 7.10 },
+  { group: "Tesla Model Y", name: "Model Y Standard AWD (68 kWh - 4680)", battery: 68.0, eff_km: 6.60 },
+  { group: "Tesla Model Y", name: "Model Y Performance AWD (78 kWh - 155 mph)", battery: 78.0, eff_km: 6.00 },
+
+  // Other Tesla Models
+  { group: "Other Tesla Models", name: "Model 3 RWD (60 kWh LFP)", battery: 60.0, eff_km: 7.60 },
+  { group: "Other Tesla Models", name: "Model 3 Long Range (78 kWh)", battery: 78.0, eff_km: 7.00 },
+  { group: "Other Tesla Models", name: "Model S Long Range (95 kWh)", battery: 95.0, eff_km: 5.80 },
+  { group: "Other Tesla Models", name: "Model X Long Range (95 kWh)", battery: 95.0, eff_km: 5.00 },
+  { group: "Other Tesla Models", name: "Cybertruck AWD (123 kWh)", battery: 123.0, eff_km: 3.60 },
+
+  // Porsche
+  { group: "Porsche", name: "Taycan Perf Plus (97 kWh - 800V)", battery: 97.0, eff_km: 4.80 },
+
+  // Hyundai / Kia
+  { group: "Hyundai / Kia", name: "Ioniq 5 AWD (84 kWh)", battery: 84.0, eff_km: 5.40 },
+  { group: "Hyundai / Kia", name: "Ioniq 6 Long Range (77.4 kWh)", battery: 77.4, eff_km: 6.50 },
+  { group: "Hyundai / Kia", name: "EV6 AWD (84 kWh)", battery: 84.0, eff_km: 5.50 },
+  { group: "Hyundai / Kia", name: "EV6 GT (84 kWh - 161 mph)", battery: 84.0, eff_km: 4.70 },
+  { group: "Hyundai / Kia", name: "EV9 AWD (99.8 kWh)", battery: 99.8, eff_km: 4.40 },
+
+  // Chevrolet
+  { group: "Chevrolet", name: "Equinox EV AWD (85 kWh)", battery: 85.0, eff_km: 5.00 },
+  { group: "Chevrolet", name: "Blazer EV AWD (85 kWh)", battery: 85.0, eff_km: 4.60 },
+  { group: "Chevrolet", name: "Silverado EV 4WT (205 kWh)", battery: 205.0, eff_km: 3.50 },
+
+  // Ford
+  { group: "Ford", name: "Mustang Mach-E Ext. AWD (91 kWh)", battery: 91.0, eff_km: 4.90 },
+  { group: "Ford", name: "F-150 Lightning Ext. (131 kWh)", battery: 131.0, eff_km: 3.20 },
+
+  // Volvo
+  { group: "Volvo", name: "EX30 Twin Motor (64 kWh - 112 mph)", battery: 64.0, eff_km: 5.30 },
+  { group: "Volvo", name: "EX90 Twin Motor (106 kWh - 112 mph)", battery: 106.0, eff_km: 4.50 },
+
+  // Rivian
+  { group: "Rivian", name: "R1T Dual Max (141 kWh)", battery: 141.0, eff_km: 3.40 },
+  { group: "Rivian", name: "R1S Dual Large (109 kWh)", battery: 109.0, eff_km: 3.50 },
+
+  // Škoda (EU)
+  { group: "Škoda", name: "Škoda Enyaq 85 / 85x (77 kWh)", battery: 77.0, eff_km: 6.20 },
+  { group: "Škoda", name: "Škoda Enyaq 60 (58 kWh)", battery: 58.0, eff_km: 6.81 },
+  { group: "Škoda", name: "Škoda Elroq 85 (77 kWh)", battery: 77.0, eff_km: 6.50 },
+
+  // Volkswagen (EU)
+  { group: "Volkswagen", name: "VW ID.4 Pro (77 kWh)", battery: 77.0, eff_km: 6.10 },
+  { group: "Volkswagen", name: "VW ID.3 Pro (58 kWh)", battery: 58.0, eff_km: 6.90 },
+  { group: "Volkswagen", name: "VW ID.7 Pro (77 kWh)", battery: 77.0, eff_km: 7.10 },
+  { group: "Volkswagen", name: "VW ID.Buzz Pro (77 kWh)", battery: 77.0, eff_km: 4.80 },
+
+  // Renault (EU)
+  { group: "Renault", name: "Renault Scénic E-Tech EV87 (87 kWh)", battery: 87.0, eff_km: 6.00 },
+  { group: "Renault", name: "Renault Mégane E-Tech EV60 (60 kWh)", battery: 60.0, eff_km: 6.50 },
+  { group: "Renault", name: "Renault 5 E-Tech (52 kWh)", battery: 52.0, eff_km: 7.20 },
+
+  // Stellantis (EU)
+  { group: "Stellantis", name: "Peugeot E-3008 Long Range (73 kWh)", battery: 73.0, eff_km: 5.80 },
+  { group: "Stellantis", name: "Peugeot E-208 (51 kWh)", battery: 51.0, eff_km: 7.00 },
+  { group: "Stellantis", name: "Fiat 500e (42 kWh)", battery: 42.0, eff_km: 7.20 },
+  { group: "Stellantis", name: "Jeep Avenger EV (54 kWh)", battery: 54.0, eff_km: 6.50 },
+
+  // BMW / Mercedes / Audi (EU)
+  { group: "BMW / Mercedes / Audi", name: "BMW i4 eDrive40 (81.2 kWh)", battery: 81.2, eff_km: 6.30 },
+  { group: "BMW / Mercedes / Audi", name: "Mercedes-Benz EQE 350+ (90.6 kWh)", battery: 90.6, eff_km: 5.90 },
+  { group: "BMW / Mercedes / Audi", name: "Audi Q4 45 e-tron (77 kWh)", battery: 77.0, eff_km: 6.00 },
+
+  // Custom Option
+  { group: "Custom", name: "Custom / Manual Vehicle Entry", battery: 75.0, eff_km: 6.00 }
+];
+
+// Constants & Storage Configuration
+const KM_TO_MILES = 1.0 / 1.609344;
+const MILES_TO_KM = 1.609344;
+const STORAGE_KEY = "ev_solar_calc_v1";
+
+// State
+let currentLang = "en";
+let currentUnit = "si";
+let dailyDistanceKm = 50.0; // Default: 50 km (Metric) or 5 miles (Imperial)
+let vehicleEffKm = 6.40;
+
+function init() {
+  populateVehicleDropdown();
+  
+  const saved = loadSavedSettings();
+  if (saved) {
+    applySavedSettings(saved);
+  } else {
+    currentLang = "en";
+    currentUnit = "si";
+    dailyDistanceKm = (currentUnit === "imperial") ? (5.0 * MILES_TO_KM) : 50.0;
+    
+    document.getElementById("lang-selector").value = currentLang;
+    document.getElementById("unit-selector").value = currentUnit;
+    document.getElementById("ev-select").selectedIndex = 0;
+    onVehicleSelect(false);
+    setDistanceDisplay(dailyDistanceKm);
+  }
+
+  applyTranslations();
+  calculate();
+}
+
+function loadSavedSettings() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn("localStorage read failed:", e);
+  }
+  return null;
+}
+
+function exportJsonConfig() {
+  const currentVehName = VEHICLE_DATA[document.getElementById("ev-select").value]?.name || "EV";
+  const settings = {
+    app: "EV_Solar_Calculator",
+    version: "1.0",
+    exportedAt: new Date().toISOString(),
+    lang: currentLang,
+    unit: currentUnit,
+    vehicleIdx: parseInt(document.getElementById("ev-select").value) || 0,
+    vehicleName: currentVehName,
+    batteryKwh: parseFloat(document.getElementById("ev-battery").value) || 78.0,
+    efficiencyKmKwh: vehicleEffKm,
+    dailyDistanceKm: dailyDistanceKm,
+    pvPeakPowerKw: parseFloat(document.getElementById("pv-power").value) || 36.0,
+    sunHoursPerDay: parseFloat(document.getElementById("sun-hours").value) || 4.5,
+    hasStorage: document.getElementById("storage-toggle").checked,
+    storageCapacityKwh: parseFloat(document.getElementById("storage-capacity").value) || 10.0,
+    dodReserveFloorPct: parseFloat(document.getElementById("dod-reserve-num").value) || 20.0,
+    acWallboxRateKw: parseFloat(document.getElementById("ac-rate").value) || 11.0
+  };
+
+  const jsonStr = JSON.stringify(settings, null, 2);
+  const blob = new Blob([jsonStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  
+  const safeName = currentVehName.replace(/[^a-zA-Z0-9_-]/g, "_").replace(/_+/g, "_").substring(0, 24);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `ev_solar_config_${safeName}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function triggerJsonImport() {
+  const fileInput = document.getElementById("json-file-input");
+  fileInput.value = "";
+  fileInput.click();
+}
+
+function importJsonConfig(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const config = JSON.parse(e.target.result);
+      if (!config || typeof config !== "object") {
+        throw new Error("Invalid format");
+      }
+
+      const s = {
+        lang: config.lang,
+        unit: config.unit,
+        vehicleIdx: config.vehicleIdx,
+        battery: config.batteryKwh !== undefined ? config.batteryKwh : config.battery,
+        efficiencyKm: config.efficiencyKmKwh !== undefined ? config.efficiencyKmKwh : config.efficiencyKm,
+        dailyDistanceKm: config.dailyDistanceKm,
+        pvPower: config.pvPeakPowerKw !== undefined ? config.pvPeakPowerKw : config.pvPower,
+        sunHours: config.sunHoursPerDay !== undefined ? config.sunHoursPerDay : config.sunHours,
+        hasStorage: config.hasStorage,
+        storageCapacity: config.storageCapacityKwh !== undefined ? config.storageCapacityKwh : config.storageCapacity,
+        dodReserve: config.dodReserveFloorPct !== undefined ? config.dodReserveFloorPct : config.dodReserve,
+        acRate: config.acWallboxRateKw !== undefined ? config.acWallboxRateKw : config.acRate
+      };
+
+      applySavedSettings(s);
+      applyTranslations();
+      calculate();
+      saveCurrentSettings();
+
+      const saveInd = document.getElementById("save-indicator");
+      if (saveInd) {
+        saveInd.textContent = I18N[currentLang].json_loaded_msg || "📂 Config Loaded";
+        saveInd.style.opacity = "1";
+        saveInd.style.color = "var(--accent)";
+        setTimeout(() => {
+          saveInd.textContent = I18N[currentLang].auto_saved;
+          saveInd.style.color = "var(--success-text)";
+          saveInd.style.opacity = "0.4";
+        }, 2500);
+      }
+    } catch (err) {
+      alert(currentLang === "it"
+        ? "Errore nel caricamento del file JSON: formato non valido o corrotto."
+        : "Error loading JSON file: invalid or corrupted format.");
+      console.error("JSON Import Error:", err);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function saveCurrentSettings() {
+  try {
+    const settings = {
+      lang: currentLang,
+      unit: currentUnit,
+      vehicleIdx: parseInt(document.getElementById("ev-select").value) || 0,
+      battery: parseFloat(document.getElementById("ev-battery").value) || 78.0,
+      efficiencyKm: vehicleEffKm,
+      dailyDistanceKm: dailyDistanceKm,
+      pvPower: parseFloat(document.getElementById("pv-power").value) || 36.0,
+      sunHours: parseFloat(document.getElementById("sun-hours").value) || 4.5,
+      hasStorage: document.getElementById("storage-toggle").checked,
+      storageCapacity: parseFloat(document.getElementById("storage-capacity").value) || 10.0,
+      dodReserve: parseFloat(document.getElementById("dod-reserve-num").value) || 20.0,
+      acRate: parseFloat(document.getElementById("ac-rate").value) || 11.0
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    
+    const saveInd = document.getElementById("save-indicator");
+    if (saveInd) {
+      saveInd.style.opacity = "1";
+      setTimeout(() => { saveInd.style.opacity = "0.4"; }, 1500);
+    }
+  } catch (e) {
+    console.warn("localStorage write failed:", e);
+  }
+}
+
+function applySavedSettings(s) {
+  if (s.lang) currentLang = s.lang;
+  if (s.unit) currentUnit = s.unit;
+  if (s.efficiencyKm) vehicleEffKm = s.efficiencyKm;
+  if (s.dailyDistanceKm !== undefined) dailyDistanceKm = s.dailyDistanceKm;
+
+  document.getElementById("lang-selector").value = currentLang;
+  document.getElementById("unit-selector").value = currentUnit;
+
+  if (s.vehicleIdx !== undefined && document.getElementById("ev-select").options[s.vehicleIdx]) {
+    document.getElementById("ev-select").value = s.vehicleIdx;
+  }
+  if (s.battery !== undefined) document.getElementById("ev-battery").value = s.battery;
+  if (s.pvPower !== undefined) document.getElementById("pv-power").value = s.pvPower;
+  if (s.sunHours !== undefined) document.getElementById("sun-hours").value = s.sunHours;
+  
+  if (s.hasStorage !== undefined) {
+    document.getElementById("storage-toggle").checked = s.hasStorage;
+    toggleStorage(false);
+  }
+  if (s.storageCapacity !== undefined) {
+    document.getElementById("storage-capacity").value = s.storageCapacity;
+    highlightPresetButton("#storage-config-panel", `${s.storageCapacity} kWh`);
+  }
+  if (s.dodReserve !== undefined) {
+    document.getElementById("dod-reserve").value = s.dodReserve;
+    document.getElementById("dod-reserve-num").value = s.dodReserve;
+    document.getElementById("disp-dod-reserve").textContent = `${s.dodReserve}%`;
+    highlightPresetButton("#storage-config-panel", `${s.dodReserve}%`);
+  }
+  if (s.acRate !== undefined) {
+    document.getElementById("ac-rate").value = s.acRate;
+    highlightPresetButton(".card-wallbox-container", `${s.acRate.toFixed(1)} kW`);
+  }
+
+  const isSI = currentUnit === "si";
+  document.querySelectorAll(".dist-unit").forEach(el => el.textContent = isSI ? "km" : "mi");
+  document.getElementById("tag-ev-efficiency").textContent = isSI ? "km/kWh" : "mi/kWh";
+  document.getElementById("tag-wh-unit").textContent = isSI ? "Wh/km" : "Wh/mi";
+  document.getElementById("table-eff-unit").textContent = isSI ? "km/kWh" : "mi/kWh";
+
+  setDistanceDisplay(dailyDistanceKm);
+
+  const dispEff = currentUnit === "si" ? vehicleEffKm : vehicleEffKm * KM_TO_MILES;
+  document.getElementById("ev-efficiency").value = (Math.round(dispEff * 100) / 100).toFixed(2);
+}
+
+function highlightPresetButton(containerSelector, labelText) {
+  document.querySelectorAll(`${containerSelector} .preset-btn`).forEach(btn => {
+    if (btn.textContent.includes(labelText)) btn.classList.add("active");
+    else if (labelText.includes("kWh") && btn.textContent.includes("kWh")) btn.classList.remove("active");
+    else if (labelText.includes("%") && btn.textContent.includes("%")) btn.classList.remove("active");
+    else if (labelText.includes("kW") && btn.textContent.includes("kW")) btn.classList.remove("active");
+  });
+}
+
+function resetDefaults() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch(e) {}
+  
+  currentLang = "en";
+  currentUnit = "si";
+  dailyDistanceKm = 50.0;
+  
+  document.getElementById("lang-selector").value = "en";
+  document.getElementById("unit-selector").value = "si";
+  document.getElementById("ev-select").selectedIndex = 0;
+  document.getElementById("pv-power").value = "36.0";
+  document.getElementById("sun-hours").value = "4.5";
+  document.getElementById("storage-toggle").checked = true;
+  document.getElementById("storage-capacity").value = "10.0";
+  document.getElementById("dod-reserve").value = "20";
+  document.getElementById("dod-reserve-num").value = "20";
+  document.getElementById("disp-dod-reserve").textContent = "20%";
+  document.getElementById("ac-rate").value = "11.0";
+
+  onVehicleSelect(false);
+  setDistanceDisplay(50.0);
+  applyTranslations();
+  toggleStorage(false);
+  calculate();
+}
+
+function populateVehicleDropdown() {
+  const select = document.getElementById("ev-select");
+  select.innerHTML = "";
+
+  const groups = {};
+  VEHICLE_DATA.forEach((veh, idx) => {
+    if (!groups[veh.group]) groups[veh.group] = [];
+    groups[veh.group].push({ veh, idx });
+  });
+
+  for (const groupName in groups) {
+    const optGroup = document.createElement("optgroup");
+    optGroup.label = groupName;
+    groups[groupName].forEach(item => {
+      const option = document.createElement("option");
+      option.value = item.idx;
+      option.textContent = item.veh.name;
+      optGroup.appendChild(option);
+    });
+    select.appendChild(optGroup);
+  }
+}
+
+function onLanguageChange() {
+  currentLang = document.getElementById("lang-selector").value;
+  applyTranslations();
+  calculate();
+}
+
+function applyTranslations() {
+  const t = I18N[currentLang];
+  document.getElementById("txt-app-title").textContent = t.app_title;
+  document.getElementById("txt-app-subtitle").textContent = t.app_subtitle;
+  document.getElementById("lbl-lang").textContent = t.lang_label;
+  document.getElementById("lbl-units").textContent = t.unit_label;
+  document.getElementById("opt-unit-si").textContent = t.unit_si;
+  document.getElementById("opt-unit-imp").textContent = t.unit_imperial;
+  document.getElementById("btn-reset-defaults").textContent = t.btn_reset;
+  document.getElementById("save-indicator").textContent = t.auto_saved;
+  document.getElementById("txt-export-json").textContent = t.btn_export_json;
+  document.getElementById("txt-load-json").textContent = t.btn_load_json;
+
+  document.getElementById("card-title-ev").textContent = t.card_ev;
+  document.getElementById("lbl-ev-select").textContent = t.lbl_ev_select;
+  document.getElementById("lbl-ev-battery").textContent = t.lbl_ev_battery;
+  document.getElementById("lbl-ev-efficiency").textContent = t.lbl_ev_efficiency;
+  document.getElementById("lbl-est-range").textContent = t.lbl_est_range;
+  document.getElementById("lbl-spec-cons").textContent = t.lbl_spec_cons;
+
+  document.getElementById("card-title-commute").textContent = t.card_commute;
+  document.getElementById("lbl-daily-distance").textContent = t.lbl_daily_distance;
+
+  document.getElementById("card-title-pv").textContent = t.card_pv;
+  document.getElementById("lbl-pv-power").textContent = t.lbl_pv_power;
+  document.getElementById("lbl-sun-hours").textContent = t.lbl_sun_hours;
+  document.getElementById("lbl-est-gen").textContent = t.lbl_est_gen;
+
+  document.getElementById("card-title-storage").textContent = t.card_storage;
+  document.getElementById("lbl-include-storage").textContent = t.lbl_include_storage;
+  document.getElementById("lbl-storage-capacity").textContent = t.lbl_storage_capacity;
+  document.getElementById("lbl-dod-reserve").textContent = t.lbl_dod_reserve;
+  document.getElementById("lbl-usable-ev").textContent = t.lbl_usable_ev;
+  document.getElementById("lbl-reserved-home").textContent = t.lbl_reserved_home;
+  document.getElementById("btn-reserve-10").textContent = t.btn_reserve_10;
+  document.getElementById("btn-reserve-20").textContent = t.btn_reserve_20;
+  document.getElementById("btn-reserve-30").textContent = t.btn_reserve_30;
+  document.getElementById("no-storage-msg").innerHTML = t.msg_no_storage;
+
+  document.getElementById("card-title-wallbox").textContent = t.card_wallbox;
+  document.getElementById("lbl-ac-rate").textContent = t.lbl_ac_rate;
+
+  document.getElementById("kpi-title-daily-energy").textContent = t.kpi_daily_energy;
+  document.getElementById("kpi-sub-pack").textContent = t.kpi_pack_drop;
+  document.getElementById("kpi-title-daily-time").textContent = t.kpi_daily_time;
+  document.getElementById("kpi-title-solar-balance").textContent = t.kpi_solar_balance;
+  document.getElementById("kpi-sub-balance").textContent = t.kpi_solar_balance_sub;
+
+  document.getElementById("card-title-diagnostics").textContent = t.card_diagnostics;
+  document.getElementById("tbl-row-ev-cap").textContent = t.tbl_ev_cap;
+  document.getElementById("tbl-row-eff-rate").textContent = t.tbl_eff_rate;
+  document.getElementById("tbl-row-daily-dist").textContent = t.tbl_daily_dist;
+  document.getElementById("tbl-row-daily-demand").textContent = t.tbl_daily_demand;
+  document.getElementById("tbl-row-wallbox-time").textContent = t.tbl_wallbox_time;
+  document.getElementById("tbl-row-storage-cap").textContent = t.tbl_storage_cap;
+  document.getElementById("tbl-row-storage-reserve").textContent = t.tbl_storage_reserve;
+  document.getElementById("tbl-row-storage-usable").textContent = t.tbl_storage_usable;
+  document.getElementById("tbl-row-storage-net").textContent = t.tbl_storage_net;
+  document.getElementById("tbl-row-pv-recharge").textContent = t.tbl_pv_recharge;
+  document.getElementById("tbl-row-direct-pv").textContent = t.tbl_direct_solar_time;
+  document.getElementById("tbl-row-solar-margin").textContent = t.tbl_solar_margin;
+
+  document.getElementById("card-title-benchmarks").textContent = t.card_benchmarks;
+  document.getElementById("tbl-row-time-20-80").textContent = t.tbl_time_20_80;
+  document.getElementById("tbl-row-time-0-100").textContent = t.tbl_time_0_100;
+  document.getElementById("tbl-row-solar-full").textContent = t.tbl_solar_full;
+  document.getElementById("rec-box-title").textContent = t.rec_title;
+  
+  document.querySelectorAll(".time-unit-hrs").forEach(el => el.textContent = t.hours_unit);
+}
+
+function onVehicleSelect(triggerCalc = true) {
+  const select = document.getElementById("ev-select");
+  const veh = VEHICLE_DATA[select.value];
+  if (!veh) return;
+
+  document.getElementById("ev-battery").value = veh.battery;
+  vehicleEffKm = veh.eff_km;
+
+  if (currentUnit === "si") {
+    document.getElementById("ev-efficiency").value = veh.eff_km.toFixed(2);
+  } else {
+    document.getElementById("ev-efficiency").value = (veh.eff_km * KM_TO_MILES).toFixed(2);
+  }
+
+  document.getElementById("vehicle-quick-spec").textContent = `${veh.battery} kWh | ${veh.eff_km} km/kWh`;
+  if (triggerCalc) calculate();
+}
+
+function onEfficiencyInput() {
+  const inputVal = parseFloat(document.getElementById("ev-efficiency").value) || 1.0;
+  vehicleEffKm = currentUnit === "si" ? inputVal : inputVal * MILES_TO_KM;
+  calculate();
+}
+
+function onDistanceInput() {
+  const val = parseFloat(document.getElementById("daily-distance").value) || 0;
+  dailyDistanceKm = currentUnit === "si" ? val : val * MILES_TO_KM;
+  document.getElementById("daily-dist-slider").value = Math.min(300, Math.max(1, Math.round(val)));
+  calculate();
+}
+
+function onDistanceSlider() {
+  const sliderVal = parseFloat(document.getElementById("daily-dist-slider").value);
+  document.getElementById("daily-distance").value = sliderVal;
+  dailyDistanceKm = currentUnit === "si" ? sliderVal : sliderVal * MILES_TO_KM;
+  calculate();
+}
+
+function setDistanceDisplay(kmVal) {
+  dailyDistanceKm = kmVal;
+  const dispVal = currentUnit === "si" ? kmVal : Math.round(kmVal * KM_TO_MILES * 10) / 10;
+  document.getElementById("daily-distance").value = dispVal;
+  document.getElementById("daily-dist-slider").value = Math.min(300, Math.max(1, Math.round(dispVal)));
+}
+
+function onUnitChange() {
+  const newUnit = document.getElementById("unit-selector").value;
+  if (newUnit === currentUnit) return;
+  currentUnit = newUnit;
+
+  const isSI = currentUnit === "si";
+  document.querySelectorAll(".dist-unit").forEach(el => el.textContent = isSI ? "km" : "mi");
+  document.getElementById("tag-ev-efficiency").textContent = isSI ? "km/kWh" : "mi/kWh";
+  document.getElementById("tag-wh-unit").textContent = isSI ? "Wh/km" : "Wh/mi";
+  document.getElementById("table-eff-unit").textContent = isSI ? "km/kWh" : "mi/kWh";
+
+  const dispDist = isSI ? dailyDistanceKm : dailyDistanceKm * KM_TO_MILES;
+  document.getElementById("daily-distance").value = Math.round(dispDist * 10) / 10;
+  document.getElementById("daily-dist-slider").value = Math.min(300, Math.max(1, Math.round(dispDist)));
+
+  const dispEff = isSI ? vehicleEffKm : vehicleEffKm * KM_TO_MILES;
+  document.getElementById("ev-efficiency").value = (Math.round(dispEff * 100) / 100).toFixed(2);
+
+  calculate();
+}
+
+function toggleStorage(triggerCalc = true) {
+  const hasStorage = document.getElementById("storage-toggle").checked;
+  document.getElementById("storage-config-panel").style.display = hasStorage ? "block" : "none";
+  document.getElementById("no-storage-msg").style.display = hasStorage ? "none" : "block";
+  document.getElementById("row-storage-cap").style.display = hasStorage ? "table-row" : "none";
+  document.getElementById("row-storage-reserve").style.display = hasStorage ? "table-row" : "none";
+  document.getElementById("row-storage-usable").style.display = hasStorage ? "table-row" : "none";
+  document.getElementById("row-storage-balance").style.display = hasStorage ? "table-row" : "none";
+  document.getElementById("row-pv-recharge").style.display = hasStorage ? "table-row" : "none";
+  if (triggerCalc) calculate();
+}
+
+function onDodSlider() {
+  const val = parseFloat(document.getElementById("dod-reserve").value) || 0;
+  document.getElementById("dod-reserve-num").value = val;
+  document.getElementById("disp-dod-reserve").textContent = `${val}%`;
+  calculate();
+}
+
+function onDodInput() {
+  const val = parseFloat(document.getElementById("dod-reserve-num").value) || 0;
+  document.getElementById("dod-reserve").value = Math.min(50, Math.max(0, val));
+  document.getElementById("disp-dod-reserve").textContent = `${val}%`;
+  calculate();
+}
+
+function setDodReserve(pct) {
+  document.getElementById("dod-reserve").value = pct;
+  document.getElementById("dod-reserve-num").value = pct;
+  document.getElementById("disp-dod-reserve").textContent = `${pct}%`;
+  document.querySelectorAll("#storage-config-panel .preset-btn").forEach(btn => {
+    if (btn.textContent.includes(`${pct}%`)) btn.classList.add("active");
+    else if (btn.textContent.includes("Reserve") || btn.textContent.includes("Riserva")) btn.classList.remove("active");
+  });
+  calculate();
+}
+
+function setStorageCapacity(kwh) {
+  document.getElementById("storage-capacity").value = kwh;
+  document.querySelectorAll("#storage-config-panel .preset-btn").forEach(btn => {
+    if (btn.textContent.includes(`${kwh} kWh`)) btn.classList.add("active");
+    else if (btn.textContent.includes("kWh")) btn.classList.remove("active");
+  });
+  calculate();
+}
+
+function setAcRate(kw) {
+  document.getElementById("ac-rate").value = kw;
+  document.querySelectorAll(".card-wallbox-container .preset-btn").forEach(btn => btn.classList.remove("active"));
+  event.target.classList.add("active");
+  calculate();
+}
+
+function formatHours(hrs) {
+  const totalMin = Math.round(hrs * 60);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return `${m}m`;
+  return `${h}h ${m}m`;
+}
+
+function calculate() {
+  const t = I18N[currentLang];
+  const evBattery = parseFloat(document.getElementById("ev-battery").value) || 1;
+  const pvPower = parseFloat(document.getElementById("pv-power").value) || 1;
+  const sunHours = parseFloat(document.getElementById("sun-hours").value) || 0;
+  const acRate = parseFloat(document.getElementById("ac-rate").value) || 1;
+  
+  const hasStorage = document.getElementById("storage-toggle").checked;
+  const storageCap = hasStorage ? (parseFloat(document.getElementById("storage-capacity").value) || 0) : 0;
+  const dodReservePct = hasStorage ? (parseFloat(document.getElementById("dod-reserve-num").value) || 0) : 0;
+  const reservedCap = storageCap * (dodReservePct / 100.0);
+  const usableStorageCap = Math.max(0, storageCap - reservedCap);
+  const effectiveDodPct = 100 - dodReservePct;
+
+  document.getElementById("disp-usable-kwh").textContent = usableStorageCap.toFixed(1);
+  document.getElementById("disp-effective-dod").textContent = effectiveDodPct.toFixed(0);
+  document.getElementById("disp-reserved-kwh").textContent = reservedCap.toFixed(1);
+
+  const effKmKwh = vehicleEffKm > 0 ? vehicleEffKm : 1;
+  const effDisp = currentUnit === "si" ? effKmKwh : effKmKwh * KM_TO_MILES;
+  const distDisp = currentUnit === "si" ? dailyDistanceKm : dailyDistanceKm * KM_TO_MILES;
+
+  const estFullRangeKm = evBattery * effKmKwh;
+  const estFullRangeDisp = currentUnit === "si" ? estFullRangeKm : estFullRangeKm * KM_TO_MILES;
+  const whPerUnit = currentUnit === "si" ? (1000 / effKmKwh) : (1000 / (effKmKwh * KM_TO_MILES));
+
+  document.getElementById("est-full-range").textContent = Math.round(estFullRangeDisp);
+  document.getElementById("est-wh-unit").textContent = Math.round(whPerUnit);
+
+  // Daily Energy Used: = Daily Distance / Efficiency
+  const dailyEnergyUsed = dailyDistanceKm / effKmKwh;
+  const evSocDropPct = (dailyEnergyUsed / evBattery) * 100;
+
+  // Daily Recharge Time (min) = (Energy Used * 60) / AC Rate
+  const dailyEvRechargeTimeMin = Math.round((dailyEnergyUsed * 60) / acRate);
+
+  const pvDailyGenKwh = pvPower * sunHours;
+  document.getElementById("pv-daily-kwh").textContent = pvDailyGenKwh.toFixed(1);
+
+  const solarSurplusKwh = pvDailyGenKwh - dailyEnergyUsed;
+
+  document.getElementById("kpi-daily-energy").textContent = dailyEnergyUsed.toFixed(1);
+  document.getElementById("kpi-ev-soc-drop").textContent = evSocDropPct.toFixed(1);
+  document.getElementById("kpi-daily-recharge-time").textContent = dailyEvRechargeTimeMin;
+  
+  const timeFormatted = formatHours(dailyEnergyUsed / acRate);
+  document.getElementById("kpi-daily-recharge-hrs").textContent = t.approx_at.replace("{time}", timeFormatted).replace("{rate}", acRate.toFixed(1));
+  
+  const balancePrefix = solarSurplusKwh >= 0 ? "+" : "";
+  document.getElementById("kpi-solar-balance").textContent = `${balancePrefix}${solarSurplusKwh.toFixed(1)}`;
+
+  document.getElementById("table-ev-battery").textContent = evBattery.toFixed(1);
+  document.getElementById("table-ev-eff").textContent = effDisp.toFixed(2);
+  document.getElementById("table-daily-dist").textContent = distDisp.toFixed(1);
+  document.getElementById("table-daily-energy").textContent = dailyEnergyUsed.toFixed(2);
+  document.getElementById("table-daily-wallbox-time").textContent = dailyEvRechargeTimeMin;
+  document.getElementById("table-storage-cap").textContent = storageCap.toFixed(1);
+
+  const time20_80_hrs = (evBattery * 0.6) / acRate;
+  const time0_100_hrs = evBattery / acRate;
+
+  document.getElementById("table-time-20-80").textContent = time20_80_hrs.toFixed(2);
+  document.getElementById("table-time-20-80-fmt").textContent = formatHours(time20_80_hrs);
+  document.getElementById("table-time-0-100").textContent = time0_100_hrs.toFixed(2);
+  document.getElementById("table-time-0-100-fmt").textContent = formatHours(time0_100_hrs);
+
+  document.getElementById("table-solar-full-charge").textContent = evBattery.toFixed(1);
+  const sunHoursForFull = evBattery / pvPower;
+  document.getElementById("table-solar-full-sun").textContent = t.sun_hours_equiv.replace("{h}", sunHoursForFull.toFixed(1));
+
+  const effectivePvRate = Math.min(pvPower, acRate);
+  const directPvTimeMin = Math.round((dailyEnergyUsed * 60) / effectivePvRate);
+  document.getElementById("table-direct-pv-time").textContent = directPvTimeMin;
+
+  const solarMarginKw = pvPower - acRate;
+  const marginText = solarMarginKw >= 0 
+    ? t.excess_solar.replace("{kw}", solarMarginKw.toFixed(1)) 
+    : t.grid_needed.replace("{kw}", Math.abs(solarMarginKw).toFixed(1));
+  document.getElementById("table-solar-margin").textContent = marginText;
+
+  const statusBanner = document.getElementById("status-banner");
+  const statusIcon = document.getElementById("status-icon");
+  const statusTitle = document.getElementById("status-title");
+  const statusDesc = document.getElementById("status-desc");
+  const recList = document.getElementById("recommendations-list");
+  recList.innerHTML = "";
+
+  if (hasStorage) {
+    document.getElementById("kpi-storage-title").textContent = t.kpi_storage_recharge;
+    const pvBattRechargeTimeMin = dailyEnergyUsed < usableStorageCap 
+      ? Math.round((dailyEnergyUsed / pvPower) * 60) 
+      : Math.round((usableStorageCap / pvPower) * 60);
+
+    document.getElementById("kpi-storage-recharge-time").textContent = pvBattRechargeTimeMin;
+    document.getElementById("kpi-storage-subtext").textContent = t.kpi_storage_sub_pv;
+    
+    const preservedText = currentLang === 'it' 
+      ? `${dodReservePct}% (${reservedCap.toFixed(1)} kWh preservati)` 
+      : `${dodReservePct}% (${reservedCap.toFixed(1)} kWh preserved)`;
+    document.getElementById("table-storage-reserve").textContent = preservedText;
+    document.getElementById("table-storage-usable").textContent = usableStorageCap.toFixed(1);
+    document.getElementById("table-pv-recharge-time").textContent = pvBattRechargeTimeMin;
+
+    const storageDelta = usableStorageCap - dailyEnergyUsed;
+    const storageNetEl = document.getElementById("table-storage-net");
+
+    if (storageDelta >= 0) {
+      statusBanner.className = "status-banner success";
+      statusIcon.textContent = "✅";
+      
+      if (currentLang === 'it') {
+        statusTitle.textContent = "Batteria pannelli ha ancora energia";
+        statusDesc.textContent = `Il tragitto giornaliero richiede ${dailyEnergyUsed.toFixed(1)} kWh. Dopo aver riservato ${reservedCap.toFixed(1)} kWh (${dodReservePct}% DoD) per il backup domestico, l'accumulo utile copre il 100% della ricarica lasciando un surplus di +${storageDelta.toFixed(1)} kWh.`;
+        storageNetEl.textContent = `+${storageDelta.toFixed(2)} kWh (Surplus sopra la riserva DoD)`;
+        
+        recList.innerHTML += `<li><strong>Autosufficienza Solare al 100%:</strong> Puoi ricaricare l'auto di notte direttamente dall'accumulo utile senza prelevare energia dalla rete.</li>`;
+        recList.innerHTML += `<li><strong>Resilienza Domestica Protetta:</strong> Una riserva garantita di <strong>${reservedCap.toFixed(1)} kWh</strong> rimane preservata nella batteria per i consumi serali domestici e blackout.</li>`;
+        recList.innerHTML += `<li><strong>Ricarica Solare Rapida dell'Accumulo:</strong> Il tuo impianto solare da ${pvPower} kW reintegra l'energia usata dall'EV in soli <strong>${pvBattRechargeTimeMin} minuti</strong> di picco solare.</li>`;
+      } else {
+        statusTitle.textContent = "PV Battery Has Sufficient Energy";
+        statusDesc.textContent = `Daily driving consumes ${dailyEnergyUsed.toFixed(1)} kWh. After reserving ${reservedCap.toFixed(1)} kWh (${dodReservePct}% DoD) for home backup, usable storage covers 100% of charging with a +${storageDelta.toFixed(1)} kWh surplus.`;
+        storageNetEl.textContent = `+${storageDelta.toFixed(2)} kWh (Surplus above DoD reserve)`;
+        
+        recList.innerHTML += `<li><strong>100% Solar Self-Sufficiency:</strong> You can recharge your EV overnight directly from usable storage without importing grid power.</li>`;
+        recList.innerHTML += `<li><strong>Protected Home Resilience:</strong> A guaranteed reserve of <strong>${reservedCap.toFixed(1)} kWh</strong> remains stored for domestic baseline loads and backup.</li>`;
+        recList.innerHTML += `<li><strong>Rapid Battery Solar Recovery:</strong> Your ${pvPower} kW solar system replenishes the EV energy draw in just <strong>${pvBattRechargeTimeMin} minutes</strong> of peak solar.</li>`;
+      }
+      storageNetEl.style.color = "var(--success-text)";
+
+    } else {
+      statusBanner.className = "status-banner warning";
+      statusIcon.textContent = "⚠️";
+      const deficit = Math.abs(storageDelta);
+
+      if (currentLang === 'it') {
+        statusTitle.textContent = "Batteria pannelli esaurita (Copertura Solare Parziale)";
+        statusDesc.textContent = `Il fabbisogno giornaliero (${dailyEnergyUsed.toFixed(1)} kWh) supera la capacità utile della batteria (${usableStorageCap.toFixed(1)} kWh) con un deficit di ${deficit.toFixed(1)} kWh dopo aver salvaguardato la riserva di ${reservedCap.toFixed(1)} kWh.`;
+        storageNetEl.textContent = `-${deficit.toFixed(2)} kWh (Deficit: Necessaria Rete o Solare Diretto)`;
+
+        recList.innerHTML += `<li><strong>Soglia di Protezione Raggiunta:</strong> La batteria interrompe l'alimentazione all'auto al raggiungimento della <strong>riserva del ${dodReservePct}% (${reservedCap.toFixed(1)} kWh)</strong>, prevenendo disservizi in casa.</li>`;
+        recList.innerHTML += `<li><strong>Integrazione Energetica:</strong> I restanti <strong>${deficit.toFixed(1)} kWh</strong> devono essere coperti dalla rete (fasce orarie agevolate) o tramite ricarica solare diretta diurna.</li>`;
+        recList.innerHTML += `<li><strong>Ricarica Diurna Diretta Consigliata:</strong> Collegando l'auto nelle ore di sole di picco, la wallbox da 11 kW ricarica l'intero tragitto in <strong>${dailyEvRechargeTimeMin} minuti</strong> direttamente dal sole senza ciclare la batteria di casa.</li>`;
+        recList.innerHTML += `<li><strong>Reintegro Batteria Pannelli:</strong> La ricarica completa della porzione utile della batteria (${usableStorageCap.toFixed(1)} kWh) richiede <strong>${pvBattRechargeTimeMin} minuti</strong> di sole.</li>`;
+      } else {
+        statusTitle.textContent = "PV Battery Depleted (Partial Solar Coverage)";
+        statusDesc.textContent = `Daily driving demand (${dailyEnergyUsed.toFixed(1)} kWh) exceeds usable battery storage (${usableStorageCap.toFixed(1)} kWh) by ${deficit.toFixed(1)} kWh after safeguarding the ${reservedCap.toFixed(1)} kWh reserve floor.`;
+        storageNetEl.textContent = `-${deficit.toFixed(2)} kWh (Deficit: Grid / Direct PV needed)`;
+
+        recList.innerHTML += `<li><strong>Protection Cutoff Reached:</strong> Storage ceases discharging to the EV upon reaching the <strong>${dodReservePct}% reserve floor (${reservedCap.toFixed(1)} kWh)</strong>, protecting household loads.</li>`;
+        recList.innerHTML += `<li><strong>Energy Supplementing:</strong> The remaining <strong>${deficit.toFixed(1)} kWh</strong> must be drawn from off-peak grid tariffs or direct daytime solar.</li>`;
+        recList.innerHTML += `<li><strong>Recommended Daytime Direct Solar:</strong> Plugging in during peak sunlight hours recharges the entire commute in <strong>${dailyEvRechargeTimeMin} minutes</strong> directly without cycling home storage.</li>`;
+        recList.innerHTML += `<li><strong>Usable Battery Solar Recovery:</strong> Replenishing the discharged usable buffer (${usableStorageCap.toFixed(1)} kWh) requires <strong>${pvBattRechargeTimeMin} minutes</strong> of peak solar.</li>`;
+      }
+      storageNetEl.style.color = "var(--warning-text)";
+    }
+  } else {
+    document.getElementById("kpi-storage-title").textContent = t.kpi_storage_direct;
+    document.getElementById("kpi-storage-recharge-time").textContent = directPvTimeMin;
+    document.getElementById("kpi-storage-subtext").textContent = t.kpi_storage_sub_direct;
+
+    if (pvPower >= acRate) {
+      statusBanner.className = "status-banner success";
+      statusIcon.textContent = "☀️";
+      if (currentLang === 'it') {
+        statusTitle.textContent = "Ricarica Solare Diurna Diretta al 100% Fattibile";
+        statusDesc.textContent = `La potenza dei pannelli (${pvPower} kW) supera la richiesta della wallbox (${acRate} kW). Ricarica 100% solare in ${directPvTimeMin} minuti con ${solarMarginKw.toFixed(1)} kW di solare in eccesso.`;
+        recList.innerHTML += `<li><strong>Finestra di Ricarica Diurna Ottimale:</strong> Senza batteria stazionaria, programma la ricarica tra le 10:00 e le 15:00. Il consumo giornaliero (${dailyEnergyUsed.toFixed(1)} kWh) si recupera in <strong>${directPvTimeMin} minuti</strong> direttamente dal sole.</li>`;
+        recList.innerHTML += `<li><strong>Zero Usura Ciclica della Batteria di Casa:</strong> L'assorbimento diretto evita perdite di conversione e degrado dell'accumulo tampone.</li>`;
+      } else {
+        statusTitle.textContent = "100% Direct Daytime Solar Charging Feasible";
+        statusDesc.textContent = `Solar output (${pvPower} kW) exceeds wallbox demand (${acRate} kW). Commute is 100% solar powered in ${directPvTimeMin} minutes with ${solarMarginKw.toFixed(1)} kW excess solar.`;
+        recList.innerHTML += `<li><strong>Optimal Daytime Solar Charging Window:</strong> Without stationary storage, schedule charging between 10:00 and 15:00. Commute energy (${dailyEnergyUsed.toFixed(1)} kWh) recharges in <strong>${directPvTimeMin} minutes</strong> directly from the sun.</li>`;
+        recList.innerHTML += `<li><strong>Zero Battery Cycle Degradation:</strong> Direct solar consumption bypasses inverter and round-trip battery degradation.</li>`;
+      }
+    } else {
+      statusBanner.className = "status-banner warning";
+      statusIcon.textContent = "⚡";
+      if (currentLang === 'it') {
+        statusTitle.textContent = "Ricarica Solare Diretta Parziale";
+        statusDesc.textContent = `La wallbox assorbe ${acRate} kW mentre la produzione di picco è di ${pvPower} kW. Ricarica completata in ${dailyEvRechargeTimeMin} min con prelievo di ${Math.abs(solarMarginKw).toFixed(1)} kW dalla rete.`;
+        recList.innerHTML += `<li><strong>Modulazione di Potenza:</strong> Se la wallbox dispone di funzione solar-divert, riduci la potenza a <strong>${pvPower.toFixed(1)} kW</strong> per caricare al 100% da fonte solare in <strong>${directPvTimeMin} minuti</strong>.</li>`;
+      } else {
+        statusTitle.textContent = "Partial Direct Solar Charging";
+        statusDesc.textContent = `Wallbox draws ${acRate} kW while peak solar output is ${pvPower} kW. Charging takes ${dailyEvRechargeTimeMin} min, drawing ${Math.abs(solarMarginKw).toFixed(1)} kW from the grid.`;
+        recList.innerHTML += `<li><strong>Power Modulation:</strong> If your charger supports solar-divert tracking, throttle charge rate to <strong>${pvPower.toFixed(1)} kW</strong> to charge 100% cleanly in <strong>${directPvTimeMin} minutes</strong>.</li>`;
+      }
+    }
+  }
+
+  saveCurrentSettings();
+}
+
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

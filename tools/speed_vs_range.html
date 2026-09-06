@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EV Highway Speed & Charging Optimizer</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --accent: #38bdf8;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --highlight: #22c55e;
+    --btn-bg: #0b1120;
+    --btn-border: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: var(--bg); color: var(--text); padding: 20px; }
+  .container { max-width: 1220px; margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 20px; }
+  @media (max-width: 920px) { .container { grid-template-columns: 1fr; } }
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .input-group { margin-bottom: 10px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 3px; }
+  input[type="number"], select { width: 100%; background: #0b1120; border: 1px solid var(--border); color: #fff; padding: 7px 9px; border-radius: 4px; font-size: 0.85rem; }
+  input[type="number"]:focus, select:focus { border-color: var(--accent); outline: none; }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  button { background: var(--btn-bg); border: 1px solid var(--btn-border); color: var(--text); padding: 7px 10px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; transition: all 0.15s ease; }
+  button:hover { background: #1e293b; border-color: var(--accent); color: var(--accent); }
+  .stats-card { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .stat-box { background: #0b1120; border: 1px solid var(--border); border-radius: 6px; padding: 10px; text-align: center; }
+  .stat-box.optimal { border-color: var(--highlight); }
+  .stat-box .title { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; }
+  .stat-box .value { font-size: 1.15rem; font-weight: 700; margin-top: 3px; }
+  .stat-box.optimal .value { color: var(--highlight); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: right; margin-top: 14px; }
+  th, td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-muted); font-weight: 600; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  tr.best-row { background: rgba(34, 197, 94, 0.12); font-weight: 700; }
+  svg { width: 100%; height: 250px; margin-top: 10px; }
+  .legend { display: flex; gap: 14px; font-size: 0.72rem; margin-top: 6px; justify-content: center; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 8px; height: 8px; border-radius: 2px; }
+  .note { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="panel">
+    <h1>Vehicle & Route Setup</h1>
+
+    <div class="input-group">
+      <label>Vehicle Configuration</label>
+      <select id="vehiclePreset" onchange="onVehicleChange()">
+        <optgroup label="Tesla Model Y">
+          <option value="tesla_my_lr_awd" selected>Model Y Long Range AWD (78 kWh - Dual Motor)</option>
+          <option value="tesla_my_lr_rwd">Model Y Long Range RWD (78 kWh - Single Motor)</option>
+          <option value="tesla_my_std_rwd">Model Y Standard RWD (60 kWh - LFP)</option>
+          <option value="tesla_my_std_awd">Model Y Standard AWD (68 kWh - 4680)</option>
+          <option value="tesla_my_p">Model Y Performance AWD (78 kWh - 155 mph)</option>
+        </optgroup>
+        <optgroup label="Other Tesla Models">
+          <option value="tesla_m3_rwd">Model 3 RWD (60 kWh LFP)</option>
+          <option value="tesla_m3_lr">Model 3 Long Range (78 kWh)</option>
+          <option value="tesla_ms_lr">Model S Long Range (95 kWh)</option>
+          <option value="tesla_mx_lr">Model X Long Range (95 kWh)</option>
+          <option value="tesla_ct">Cybertruck AWD (123 kWh)</option>
+        </optgroup>
+        <optgroup label="Porsche">
+          <option value="porsche_taycan">Taycan Perf Plus (97 kWh - 800V)</option>
+        </optgroup>
+        <optgroup label="Hyundai / Kia">
+          <option value="hyundai_ioniq5">Ioniq 5 AWD (84 kWh)</option>
+          <option value="hyundai_ioniq6">Ioniq 6 Long Range (77.4 kWh)</option>
+          <option value="kia_ev6">EV6 AWD (84 kWh)</option>
+          <option value="kia_ev6_gt">EV6 GT (84 kWh - 161 mph)</option>
+          <option value="kia_ev9">EV9 AWD (99.8 kWh)</option>
+        </optgroup>
+        <optgroup label="Chevrolet">
+          <option value="chevy_equinox">Equinox EV AWD (85 kWh)</option>
+          <option value="chevy_blazer">Blazer EV AWD (85 kWh)</option>
+          <option value="chevy_silverado">Silverado EV 4WT (205 kWh)</option>
+        </optgroup>
+        <optgroup label="Ford">
+          <option value="ford_mache">Mustang Mach-E Ext. AWD (91 kWh)</option>
+          <option value="ford_lightning">F-150 Lightning Ext. (131 kWh)</option>
+        </optgroup>
+        <optgroup label="Volvo">
+          <option value="volvo_ex30">EX30 Twin Motor (64 kWh - 112 mph)</option>
+          <option value="volvo_ex90">EX90 Twin Motor (106 kWh - 112 mph)</option>
+        </optgroup>
+        <optgroup label="Rivian">
+          <option value="rivian_r1t">R1T Dual Max (141 kWh)</option>
+          <option value="rivian_r1s">R1S Dual Large (109 kWh)</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="grid-2">
+      <div class="input-group">
+        <label>Battery Usable (kWh)</label>
+        <input type="number" id="packSize" value="78" step="0.5" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Base @ 65 mph (Wh/mi)</label>
+        <input type="number" id="baseConsumption" value="265" step="5" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="input-group">
+        <label>Distance Unit</label>
+        <select id="unit" onchange="onUnitChange()">
+          <option value="miles">Miles (mph)</option>
+          <option value="km">Kilometers (km/h)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Trip Distance (<span id="unit-dist">mi</span>)</label>
+        <input type="number" id="distance" value="380" step="10" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Governor Limit (<span id="unit-top">mph</span>)</label>
+      <input type="number" id="topSpeedLimiter" value="135" min="50" max="200" oninput="calculate()">
+    </div>
+
+    <div class="input-group">
+      <label>Charger Stall Preset</label>
+      <select id="chargerPreset" onchange="onChargerPresetChange()">
+        <option value="350">Ultra-Fast 350 kW (CCS / Ionity / EnBW)</option>
+        <option value="250" selected>Tesla Supercharger V3 / V4 (250 kW)</option>
+        <option value="150">Tesla V2 / Fast CCS (150 kW)</option>
+        <option value="100">DC Fast (100 kW)</option>
+        <option value="50">Urban DC Fast (50 kW)</option>
+        <option value="custom">Custom Power Rating</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label>Nominal Charger Power (kW)</label>
+      <input type="number" id="chargerPower" value="250" min="20" max="400" step="10" oninput="calculate()">
+    </div>
+
+    <div class="grid-2">
+      <div class="input-group">
+        <label>Initial SOC (%)</label>
+        <input type="number" id="startSoc" value="95" min="20" max="100" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Dest Buffer (%)</label>
+        <input type="number" id="bufferSoc" value="12" min="5" max="50" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="input-group">
+        <label>Charger Min SOC (%)</label>
+        <input type="number" id="chargerArrivalSoc" value="10" min="5" max="25" oninput="calculate()">
+      </div>
+      <div class="input-group">
+        <label>Stop Overhead (min)</label>
+        <input type="number" id="stopOverhead" value="6" min="0" max="30" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" onclick="exportJSON()">Export JSON</button>
+      <button type="button" onclick="document.getElementById('fileInput').click()">Import JSON</button>
+      <button type="button" onclick="resetDefaults()">Reset</button>
+      <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+    <div class="note">Settings automatically persist across page reloads via LocalStorage.</div>
+  </div>
+
+  <div class="panel">
+    <h1>Optimization Analysis</h1>
+    
+    <div class="stats-card">
+      <div class="stat-box optimal">
+        <div class="title">Optimal Cruising Speed</div>
+        <div class="value" id="opt-speed">--</div>
+      </div>
+      <div class="stat-box">
+        <div class="title">Total Travel Time</div>
+        <div class="value" id="opt-time">--</div>
+      </div>
+      <div class="stat-box">
+        <div class="title">Energy to Charge</div>
+        <div class="value" id="opt-charge">--</div>
+      </div>
+    </div>
+
+    <svg id="chart" viewBox="0 0 700 250"></svg>
+    <div class="legend">
+      <div class="legend-item"><div class="dot" style="background: #38bdf8;"></div> Drive Time</div>
+      <div class="legend-item"><div class="dot" style="background: #f59e0b;"></div> Charge Time</div>
+      <div class="legend-item"><div class="dot" style="background: #22c55e;"></div> Total Time</div>
+    </div>
+
+    <table id="table">
+      <thead>
+        <tr>
+          <th>Speed</th>
+          <th>Consumption</th>
+          <th>Drive Time</th>
+          <th>Charge Time</th>
+          <th>Stops</th>
+          <th>Total Time</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'ev_speed_trip_settings_v1';
+
+const VEHICLE_DATA = {
+  tesla_my_lr_awd:  { pack: 78.0,  wh_mi: 265, curve: 'tesla_2170', top_mph: 135, top_kmh: 217 },
+  tesla_my_lr_rwd:  { pack: 78.0,  wh_mi: 245, curve: 'tesla_2170', top_mph: 135, top_kmh: 217 },
+  tesla_my_std_rwd: { pack: 60.0,  wh_mi: 235, curve: 'tesla_lfp',  top_mph: 135, top_kmh: 217 },
+  tesla_my_std_awd: { pack: 68.0,  wh_mi: 255, curve: 'tesla_4680', top_mph: 135, top_kmh: 217 },
+  tesla_my_p:       { pack: 78.0,  wh_mi: 280, curve: 'tesla_2170', top_mph: 155, top_kmh: 250 },
+  tesla_m3_rwd:     { pack: 60.0,  wh_mi: 220, curve: 'tesla_lfp',  top_mph: 125, top_kmh: 201 },
+  tesla_m3_lr:      { pack: 78.0,  wh_mi: 240, curve: 'tesla_2170', top_mph: 125, top_kmh: 201 },
+  tesla_ms_lr:      { pack: 95.0,  wh_mi: 280, curve: 'tesla_2170', top_mph: 130, top_kmh: 209 },
+  tesla_mx_lr:      { pack: 95.0,  wh_mi: 330, curve: 'tesla_2170', top_mph: 130, top_kmh: 209 },
+  tesla_ct:         { pack: 123.0, wh_mi: 430, curve: 'tesla_ct',   top_mph: 112, top_kmh: 180 },
+  porsche_taycan:   { pack: 97.0,  wh_mi: 295, curve: 'taycan_800v',top_mph: 155, top_kmh: 250 },
+  hyundai_ioniq5:   { pack: 84.0,  wh_mi: 290, curve: 'egmp_800v', top_mph: 115, top_kmh: 185 },
+  hyundai_ioniq6:   { pack: 77.4,  wh_mi: 235, curve: 'egmp_800v', top_mph: 115, top_kmh: 185 },
+  kia_ev6:          { pack: 84.0,  wh_mi: 285, curve: 'egmp_800v', top_mph: 115, top_kmh: 185 },
+  kia_ev6_gt:       { pack: 84.0,  wh_mi: 330, curve: 'egmp_800v', top_mph: 161, top_kmh: 260 },
+  kia_ev9:          { pack: 99.8,  wh_mi: 360, curve: 'egmp_large', top_mph: 118, top_kmh: 190 },
+  chevy_equinox:    { pack: 85.0,  wh_mi: 295, curve: 'standard_150', top_mph: 110, top_kmh: 177 },
+  chevy_blazer:     { pack: 85.0,  wh_mi: 330, curve: 'standard_150', top_mph: 112, top_kmh: 180 },
+  chevy_silverado:  { pack: 205.0, wh_mi: 480, curve: 'ultium_350', top_mph: 106, top_kmh: 170 },
+  ford_mache:       { pack: 91.0,  wh_mi: 320, curve: 'standard_150', top_mph: 111, top_kmh: 180 },
+  ford_lightning:   { pack: 131.0, wh_mi: 460, curve: 'standard_150', top_mph: 106, top_kmh: 170 },
+  volvo_ex30:       { pack: 64.0,  wh_mi: 290, curve: 'standard_150', top_mph: 112, top_kmh: 180 },
+  volvo_ex90:       { pack: 106.0, wh_mi: 380, curve: 'large_250',    top_mph: 112, top_kmh: 180 },
+  rivian_r1t:       { pack: 141.0, wh_mi: 410, curve: 'rivian_220',  top_mph: 115, top_kmh: 185 },
+  rivian_r1s:       { pack: 109.0, wh_mi: 395, curve: 'rivian_220',  top_mph: 115, top_kmh: 185 }
+};
+
+let activeCurve = 'tesla_2170';
+
+function getVehicleCurvePower(curve, soc) {
+  switch (curve) {
+    case 'taycan_800v':
+      if (soc < 10) return 270;
+      if (soc < 60) return 320;
+      if (soc < 70) return 240;
+      if (soc < 80) return 160;
+      if (soc < 85) return 90;
+      return 40;
+    case 'egmp_800v':
+      if (soc < 5) return 180;
+      if (soc < 55) return 235;
+      if (soc < 70) return 175;
+      if (soc < 80) return 135;
+      if (soc < 85) return 60;
+      return 25;
+    case 'egmp_large':
+      if (soc < 5) return 170;
+      if (soc < 55) return 215;
+      if (soc < 70) return 170;
+      if (soc < 80) return 125;
+      return 25;
+    case 'tesla_2170':
+      if (soc < 10) return 170;
+      if (soc < 25) return 250;
+      if (soc < 40) return 195;
+      if (soc < 50) return 145;
+      if (soc < 60) return 105;
+      if (soc < 70) return 75;
+      if (soc < 80) return 50;
+      if (soc < 90) return 32;
+      return 15;
+    case 'tesla_lfp':
+      if (soc < 10) return 140;
+      if (soc < 40) return 170;
+      if (soc < 60) return 110;
+      if (soc < 75) return 75;
+      if (soc < 90) return 45;
+      return 20;
+    case 'tesla_4680':
+      if (soc < 15) return 230;
+      if (soc < 25) return 170;
+      if (soc < 35) return 115;
+      if (soc < 50) return 85;
+      if (soc < 65) return 65;
+      if (soc < 80) return 42;
+      return 25;
+    case 'tesla_ct':
+      if (soc < 15) return 250;
+      if (soc < 35) return 200;
+      if (soc < 50) return 150;
+      if (soc < 65) return 110;
+      if (soc < 80) return 75;
+      return 35;
+    case 'ultium_350':
+      if (soc < 35) return 350;
+      if (soc < 55) return 260;
+      if (soc < 70) return 170;
+      if (soc < 80) return 110;
+      return 40;
+    case 'rivian_220':
+    case 'large_250':
+      if (soc < 30) return (curve === 'large_250' ? 250 : 215);
+      if (soc < 50) return 165;
+      if (soc < 70) return 110;
+      if (soc < 80) return 65;
+      return 30;
+    case 'standard_150':
+    default:
+      if (soc < 40) return 150;
+      if (soc < 60) return 115;
+      if (soc < 75) return 85;
+      if (soc < 80) return 65;
+      if (soc < 90) return 35;
+      return 15;
+  }
+}
+
+function getCurrentState() {
+  return {
+    vehiclePreset: document.getElementById('vehiclePreset').value,
+    packSize: parseFloat(document.getElementById('packSize').value) || 78,
+    baseConsumption: parseFloat(document.getElementById('baseConsumption').value) || 265,
+    unit: document.getElementById('unit').value,
+    distance: parseFloat(document.getElementById('distance').value) || 380,
+    topSpeedLimiter: parseFloat(document.getElementById('topSpeedLimiter').value) || 135,
+    chargerPreset: document.getElementById('chargerPreset').value,
+    chargerPower: parseFloat(document.getElementById('chargerPower').value) || 250,
+    startSoc: parseFloat(document.getElementById('startSoc').value) || 95,
+    bufferSoc: parseFloat(document.getElementById('bufferSoc').value) || 12,
+    chargerArrivalSoc: parseFloat(document.getElementById('chargerArrivalSoc').value) || 10,
+    stopOverhead: parseFloat(document.getElementById('stopOverhead').value) || 6,
+    activeCurve: activeCurve
+  };
+}
+
+function applyState(s) {
+  if (!s) return;
+  if (s.vehiclePreset) document.getElementById('vehiclePreset').value = s.vehiclePreset;
+  if (s.packSize !== undefined) document.getElementById('packSize').value = s.packSize;
+  if (s.baseConsumption !== undefined) document.getElementById('baseConsumption').value = s.baseConsumption;
+  if (s.unit) document.getElementById('unit').value = s.unit;
+  if (s.distance !== undefined) document.getElementById('distance').value = s.distance;
+  if (s.topSpeedLimiter !== undefined) document.getElementById('topSpeedLimiter').value = s.topSpeedLimiter;
+  if (s.chargerPreset) document.getElementById('chargerPreset').value = s.chargerPreset;
+  if (s.chargerPower !== undefined) document.getElementById('chargerPower').value = s.chargerPower;
+  if (s.startSoc !== undefined) document.getElementById('startSoc').value = s.startSoc;
+  if (s.bufferSoc !== undefined) document.getElementById('bufferSoc').value = s.bufferSoc;
+  if (s.chargerArrivalSoc !== undefined) document.getElementById('chargerArrivalSoc').value = s.chargerArrivalSoc;
+  if (s.stopOverhead !== undefined) document.getElementById('stopOverhead').value = s.stopOverhead;
+  if (s.activeCurve) activeCurve = s.activeCurve;
+  else if (s.vehiclePreset && VEHICLE_DATA[s.vehiclePreset]) activeCurve = VEHICLE_DATA[s.vehiclePreset].curve;
+
+  const isKm = s.unit === 'km';
+  document.getElementById('unit-dist').innerText = isKm ? 'km' : 'mi';
+  document.getElementById('unit-top').innerText = isKm ? 'km/h' : 'mph';
+}
+
+function saveToLocalStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getCurrentState()));
+  } catch (e) {
+    console.warn('LocalStorage save failed:', e);
+  }
+}
+
+function exportJSON() {
+  const data = getCurrentState();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ev_trip_optimizer_${data.vehiclePreset}_${data.distance}${data.unit === 'km' ? 'km' : 'mi'}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const state = JSON.parse(e.target.result);
+      applyState(state);
+      calculate();
+    } catch (err) {
+      alert('Invalid configuration JSON file.');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function resetDefaults() {
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('vehiclePreset').value = 'tesla_my_lr_awd';
+  document.getElementById('unit').value = 'miles';
+  document.getElementById('distance').value = 380;
+  document.getElementById('chargerPreset').value = '250';
+  document.getElementById('startSoc').value = 95;
+  document.getElementById('bufferSoc').value = 12;
+  document.getElementById('chargerArrivalSoc').value = 10;
+  document.getElementById('stopOverhead').value = 6;
+  onVehicleChange();
+}
+
+function onVehicleChange() {
+  const sel = document.getElementById('vehiclePreset').value;
+  const v = VEHICLE_DATA[sel];
+  if (!v) return;
+
+  const isKm = document.getElementById('unit').value === 'km';
+  document.getElementById('packSize').value = v.pack;
+  document.getElementById('baseConsumption').value = isKm ? Math.round(v.wh_mi / 1.60934) : v.wh_mi;
+  document.getElementById('topSpeedLimiter').value = isKm ? v.top_kmh : v.top_mph;
+  activeCurve = v.curve;
+  calculate();
+}
+
+function onUnitChange() {
+  const isKm = document.getElementById('unit').value === 'km';
+  document.getElementById('unit-dist').innerText = isKm ? 'km' : 'mi';
+  document.getElementById('unit-top').innerText = isKm ? 'km/h' : 'mph';
+
+  const sel = document.getElementById('vehiclePreset').value;
+  const v = VEHICLE_DATA[sel];
+  if (v) {
+    document.getElementById('baseConsumption').value = isKm ? Math.round(v.wh_mi / 1.60934) : v.wh_mi;
+    document.getElementById('topSpeedLimiter').value = isKm ? v.top_kmh : v.top_mph;
+  }
+  calculate();
+}
+
+function onChargerPresetChange() {
+  const val = document.getElementById('chargerPreset').value;
+  if (val !== 'custom') {
+    document.getElementById('chargerPower').value = val;
+  }
+  calculate();
+}
+
+function computeChargeTime(kWhNeeded, packSize, arrivalSoc, stallKw) {
+  if (kWhNeeded <= 0) return { timeHours: 0, finalSoc: arrivalSoc, stops: 0 };
+
+  const usablePerStopWindow = packSize * 0.65;
+  const stops = Math.max(1, Math.ceil(kWhNeeded / usablePerStopWindow));
+  const energyPerStop = kWhNeeded / stops;
+
+  let totalStopSeconds = 0;
+  let currentSoc = arrivalSoc;
+
+  for (let s = 0; s < stops; s++) {
+    let energyAdded = 0;
+    currentSoc = arrivalSoc;
+    while (energyAdded < energyPerStop && currentSoc < 95) {
+      const batLimit = getVehicleCurvePower(activeCurve, currentSoc);
+      const effectiveKw = Math.min(stallKw, batLimit);
+      const stepKwh = packSize * 0.005;
+      totalStopSeconds += (stepKwh / effectiveKw) * 3600;
+      energyAdded += stepKwh;
+      currentSoc += 0.5;
+    }
+  }
+
+  return {
+    timeHours: totalStopSeconds / 3600,
+    finalSoc: Math.round(currentSoc),
+    stops: stops
+  };
+}
+
+function calculate() {
+  saveToLocalStorage();
+
+  const isMiles = document.getElementById('unit').value === 'miles';
+  const distance = parseFloat(document.getElementById('distance').value) || 0;
+  const packSize = parseFloat(document.getElementById('packSize').value) || 78;
+  const baseConsumption = parseFloat(document.getElementById('baseConsumption').value) || 265;
+  const stallKw = parseFloat(document.getElementById('chargerPower').value) || 250;
+  const carTopSpeed = parseFloat(document.getElementById('topSpeedLimiter').value) || 135;
+  const startSoc = (parseFloat(document.getElementById('startSoc').value) || 95) / 100;
+  const bufferSoc = (parseFloat(document.getElementById('bufferSoc').value) || 12) / 100;
+  const chargerArrivalSoc = parseFloat(document.getElementById('chargerArrivalSoc').value) || 10;
+  const stopOverheadHours = ((parseFloat(document.getElementById('stopOverhead').value) || 0) / 60);
+
+  const baseRefSpeed = isMiles ? 65 : 105;
+  const baseCandidateSpeeds = isMiles 
+    ? [55, 65, 75, 85, 95, 105, 115, 120] 
+    : [90, 110, 130, 150, 170, 185, 200];
+  
+  const ceiling = isMiles ? 120 : 200;
+  const effectiveMax = Math.min(carTopSpeed, ceiling);
+
+  let testSpeeds = baseCandidateSpeeds.filter(s => s <= effectiveMax);
+  if (effectiveMax > baseCandidateSpeeds[0] && !testSpeeds.includes(effectiveMax)) {
+    testSpeeds.push(effectiveMax);
+    testSpeeds.sort((a, b) => a - b);
+  }
+
+  const results = [];
+  let bestIdx = 0;
+  let minTotalTime = Infinity;
+
+  testSpeeds.forEach((v, idx) => {
+    const aeroFactor = 0.35 + 0.65 * Math.pow(v / baseRefSpeed, 2);
+    const consumption = baseConsumption * aeroFactor;
+    
+    const totalEnergyNeeded = (distance * consumption) / 1000;
+    const usableDepartureEnergy = packSize * (startSoc - bufferSoc);
+    const deficitKwh = Math.max(0, totalEnergyNeeded - usableDepartureEnergy);
+
+    const driveTimeHours = distance / v;
+    const chargeData = computeChargeTime(deficitKwh, packSize, chargerArrivalSoc, stallKw);
+    const overheadHours = chargeData.stops * stopOverheadHours;
+    const totalTimeHours = driveTimeHours + chargeData.timeHours + overheadHours;
+
+    if (totalTimeHours < minTotalTime) {
+      minTotalTime = totalTimeHours;
+      bestIdx = idx;
+    }
+
+    results.push({
+      speed: v,
+      consumption: Math.round(consumption),
+      driveTime: driveTimeHours,
+      chargeTime: chargeData.timeHours + overheadHours,
+      totalTime: totalTimeHours,
+      stops: chargeData.stops,
+      deficitKwh: deficitKwh,
+      isTopGovernor: v === carTopSpeed
+    });
+  });
+
+  const opt = results[bestIdx];
+  const speedUnit = isMiles ? 'mph' : 'km/h';
+  const formatHrs = (h) => {
+    const hrs = Math.floor(h);
+    const mins = Math.round((h - hrs) * 60);
+    return `${hrs}h ${mins < 10 ? '0' : ''}${mins}m`;
+  };
+
+  document.getElementById('opt-speed').innerText = `${opt.speed} ${speedUnit}`;
+  document.getElementById('opt-time').innerText = formatHrs(opt.totalTime);
+  document.getElementById('opt-charge').innerText = `${opt.deficitKwh.toFixed(1)} kWh`;
+
+  const tbody = document.querySelector('#table tbody');
+  tbody.innerHTML = '';
+  results.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    if (idx === bestIdx) tr.className = 'best-row';
+    tr.innerHTML = `
+      <td>${r.speed} ${speedUnit} ${r.isTopGovernor ? '<span style="color:#f59e0b;font-size:0.7rem;">(MAX)</span>' : ''}</td>
+      <td>${r.consumption} Wh/${isMiles ? 'mi' : 'km'}</td>
+      <td>${formatHrs(r.driveTime)}</td>
+      <td>${r.deficitKwh > 0 ? formatHrs(r.chargeTime) : '0h 00m'}</td>
+      <td>${r.stops}</td>
+      <td>${formatHrs(r.totalTime)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderChart(results, bestIdx);
+}
+
+function renderChart(results, bestIdx) {
+  const svg = document.getElementById('chart');
+  const w = 700, h = 250, pad = 42;
+  svg.innerHTML = '';
+
+  const minV = results[0].speed;
+  const maxV = results[results.length - 1].speed;
+  const maxT = Math.max(...results.map(r => r.totalTime)) * 1.08;
+
+  const getX = (v) => pad + ((v - minV) / (maxV - minV)) * (w - 2 * pad);
+  const getY = (t) => h - pad - (t / maxT) * (h - 2 * pad);
+
+  svg.innerHTML += `
+    <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="#334155" stroke-width="1" />
+    <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${h - pad}" stroke="#334155" stroke-width="1" />
+  `;
+
+  function makePath(key, color) {
+    let d = '';
+    results.forEach((r, i) => {
+      let x = getX(r.speed), y = getY(r[key]);
+      d += (i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`);
+    });
+    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" />`;
+  }
+
+  svg.innerHTML += makePath('driveTime', '#38bdf8');
+  svg.innerHTML += makePath('chargeTime', '#f59e0b');
+  svg.innerHTML += makePath('totalTime', '#22c55e');
+
+  results.forEach((r, i) => {
+    let x = getX(r.speed);
+    svg.innerHTML += `
+      <text x="${x}" y="${h - pad + 16}" fill="#94a3b8" font-size="10" text-anchor="middle">${r.speed}</text>
+      <circle cx="${x}" cy="${getY(r.totalTime)}" r="${i === bestIdx ? 5 : 3}" fill="${i === bestIdx ? '#22c55e' : '#fff'}" />
+    `;
+  });
+}
+
+window.onload = () => {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      applyState(JSON.parse(saved));
+      calculate();
+      return;
+    } catch (e) {
+      console.warn('Corrupt local storage:', e);
+    }
+  }
+  onVehicleChange();
+};
+</script>
+</body>
+</html>
