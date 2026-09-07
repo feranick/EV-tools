@@ -960,7 +960,7 @@ const I18N = {
 // ==========================================
 // SHARED DATA SOURCES (single source of truth)
 // ==========================================
-const EV_MODELS_URL = "../ev_models.json";
+const EV_MODELS_URL = "./ev_models.json";
 const VERSION_URL   = "../version.json";
 
 // Populated at startup from ev_models.json. Array order defines the
@@ -1026,7 +1026,7 @@ function showVehicleDataError(err) {
   select.disabled = true;
 
   document.getElementById("vehicle-quick-spec").textContent =
-    "\u26a0\ufe0f Could not load ../ev_models.json (" + err.message + ")";
+    "\u26a0\ufe0f Could not load " + EV_MODELS_URL + " (" + err.message + ")";
 
   // Keep the tool usable with manual entry.
   document.getElementById("ev-battery").value = 78.0;

@@ -1,0 +1,6 @@
+{
+  "version": "2026.9.7.3",
+  "released": "2026-09-07",
+  "app": "EV Tools",
+  "notes": "Version format: YYYY.M.D.revision. Bump the last field for same-day revisions."
+}

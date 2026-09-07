@@ -13,7 +13,8 @@
     "custom": "Manual-entry placeholder row; carries no real vehicle data and no charging block.",
     "curves": "DC charge curves as data. steps = ordered [soc_below, kW] pairs, first match wins; tail = kW at and above the last threshold. Add a platform here rather than editing the app JS.",
     "curves.est": "true = curve shape is an estimate anchored to the published peak kW and 10-80% time in its note.",
-    "legacy_index_order": "The original 43-entry array order. Used once, to migrate a saved vehicleIdx from before ids were used as option values. Do not extend or reorder."
+    "legacy_index_order": "The original 43-entry array order. Used once, to migrate a saved vehicleIdx from before ids were used as option values. Do not extend or reorder.",
+    "location": "Lives in tools/ alongside the two calculators, which fetch it as ./ev_models.json. version.json stays at the repo root (../version.json from tools/) because index.html needs it too."
   },
   "curves": {
     "tesla_2170": {
