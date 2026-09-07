@@ -19,6 +19,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { background: var(--bg); color: var(--text); padding: 20px; }
   .container { max-width: 1220px; margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 20px; }
+  .app-footer { max-width: 1220px; margin: 20px auto 0; padding-top: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 0.72rem; color: var(--text-muted); }
+  .app-footer a { color: var(--text-muted); text-decoration: none; }
+  .app-footer a:hover { color: var(--accent); }
   @media (max-width: 920px) { .container { grid-template-columns: 1fr; } }
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
   h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
@@ -57,47 +60,7 @@
     <div class="input-group">
       <label>Vehicle Configuration</label>
       <select id="vehiclePreset" onchange="onVehicleChange()">
-        <optgroup label="Tesla Model Y">
-          <option value="tesla_my_lr_awd" selected>Model Y Long Range AWD (78 kWh - Dual Motor)</option>
-          <option value="tesla_my_lr_rwd">Model Y Long Range RWD (78 kWh - Single Motor)</option>
-          <option value="tesla_my_std_rwd">Model Y Standard RWD (60 kWh - LFP)</option>
-          <option value="tesla_my_std_awd">Model Y Standard AWD (68 kWh - 4680)</option>
-          <option value="tesla_my_p">Model Y Performance AWD (78 kWh - 155 mph)</option>
-        </optgroup>
-        <optgroup label="Other Tesla Models">
-          <option value="tesla_m3_rwd">Model 3 RWD (60 kWh LFP)</option>
-          <option value="tesla_m3_lr">Model 3 Long Range (78 kWh)</option>
-          <option value="tesla_ms_lr">Model S Long Range (95 kWh)</option>
-          <option value="tesla_mx_lr">Model X Long Range (95 kWh)</option>
-          <option value="tesla_ct">Cybertruck AWD (123 kWh)</option>
-        </optgroup>
-        <optgroup label="Porsche">
-          <option value="porsche_taycan">Taycan Perf Plus (97 kWh - 800V)</option>
-        </optgroup>
-        <optgroup label="Hyundai / Kia">
-          <option value="hyundai_ioniq5">Ioniq 5 AWD (84 kWh)</option>
-          <option value="hyundai_ioniq6">Ioniq 6 Long Range (77.4 kWh)</option>
-          <option value="kia_ev6">EV6 AWD (84 kWh)</option>
-          <option value="kia_ev6_gt">EV6 GT (84 kWh - 161 mph)</option>
-          <option value="kia_ev9">EV9 AWD (99.8 kWh)</option>
-        </optgroup>
-        <optgroup label="Chevrolet">
-          <option value="chevy_equinox">Equinox EV AWD (85 kWh)</option>
-          <option value="chevy_blazer">Blazer EV AWD (85 kWh)</option>
-          <option value="chevy_silverado">Silverado EV 4WT (205 kWh)</option>
-        </optgroup>
-        <optgroup label="Ford">
-          <option value="ford_mache">Mustang Mach-E Ext. AWD (91 kWh)</option>
-          <option value="ford_lightning">F-150 Lightning Ext. (131 kWh)</option>
-        </optgroup>
-        <optgroup label="Volvo">
-          <option value="volvo_ex30">EX30 Twin Motor (64 kWh - 112 mph)</option>
-          <option value="volvo_ex90">EX90 Twin Motor (106 kWh - 112 mph)</option>
-        </optgroup>
-        <optgroup label="Rivian">
-          <option value="rivian_r1t">R1T Dual Max (141 kWh)</option>
-          <option value="rivian_r1s">R1S Dual Large (109 kWh)</option>
-        </optgroup>
+        <!-- Populated at runtime from ../ev_models.json -->
       </select>
     </div>
 
@@ -220,115 +183,120 @@
   </div>
 </div>
 
+<footer class="app-footer">
+  <a href="../index.html">EV Tools</a>
+  <span id="app-version">&hellip;</span>
+</footer>
+
 <script>
 const STORAGE_KEY = 'ev_speed_trip_settings_v1';
 
-const VEHICLE_DATA = {
-  tesla_my_lr_awd:  { pack: 78.0,  wh_mi: 265, curve: 'tesla_2170', top_mph: 135, top_kmh: 217 },
-  tesla_my_lr_rwd:  { pack: 78.0,  wh_mi: 245, curve: 'tesla_2170', top_mph: 135, top_kmh: 217 },
-  tesla_my_std_rwd: { pack: 60.0,  wh_mi: 235, curve: 'tesla_lfp',  top_mph: 135, top_kmh: 217 },
-  tesla_my_std_awd: { pack: 68.0,  wh_mi: 255, curve: 'tesla_4680', top_mph: 135, top_kmh: 217 },
-  tesla_my_p:       { pack: 78.0,  wh_mi: 280, curve: 'tesla_2170', top_mph: 155, top_kmh: 250 },
-  tesla_m3_rwd:     { pack: 60.0,  wh_mi: 220, curve: 'tesla_lfp',  top_mph: 125, top_kmh: 201 },
-  tesla_m3_lr:      { pack: 78.0,  wh_mi: 240, curve: 'tesla_2170', top_mph: 125, top_kmh: 201 },
-  tesla_ms_lr:      { pack: 95.0,  wh_mi: 280, curve: 'tesla_2170', top_mph: 130, top_kmh: 209 },
-  tesla_mx_lr:      { pack: 95.0,  wh_mi: 330, curve: 'tesla_2170', top_mph: 130, top_kmh: 209 },
-  tesla_ct:         { pack: 123.0, wh_mi: 430, curve: 'tesla_ct',   top_mph: 112, top_kmh: 180 },
-  porsche_taycan:   { pack: 97.0,  wh_mi: 295, curve: 'taycan_800v',top_mph: 155, top_kmh: 250 },
-  hyundai_ioniq5:   { pack: 84.0,  wh_mi: 290, curve: 'egmp_800v', top_mph: 115, top_kmh: 185 },
-  hyundai_ioniq6:   { pack: 77.4,  wh_mi: 235, curve: 'egmp_800v', top_mph: 115, top_kmh: 185 },
-  kia_ev6:          { pack: 84.0,  wh_mi: 285, curve: 'egmp_800v', top_mph: 115, top_kmh: 185 },
-  kia_ev6_gt:       { pack: 84.0,  wh_mi: 330, curve: 'egmp_800v', top_mph: 161, top_kmh: 260 },
-  kia_ev9:          { pack: 99.8,  wh_mi: 360, curve: 'egmp_large', top_mph: 118, top_kmh: 190 },
-  chevy_equinox:    { pack: 85.0,  wh_mi: 295, curve: 'standard_150', top_mph: 110, top_kmh: 177 },
-  chevy_blazer:     { pack: 85.0,  wh_mi: 330, curve: 'standard_150', top_mph: 112, top_kmh: 180 },
-  chevy_silverado:  { pack: 205.0, wh_mi: 480, curve: 'ultium_350', top_mph: 106, top_kmh: 170 },
-  ford_mache:       { pack: 91.0,  wh_mi: 320, curve: 'standard_150', top_mph: 111, top_kmh: 180 },
-  ford_lightning:   { pack: 131.0, wh_mi: 460, curve: 'standard_150', top_mph: 106, top_kmh: 170 },
-  volvo_ex30:       { pack: 64.0,  wh_mi: 290, curve: 'standard_150', top_mph: 112, top_kmh: 180 },
-  volvo_ex90:       { pack: 106.0, wh_mi: 380, curve: 'large_250',    top_mph: 112, top_kmh: 180 },
-  rivian_r1t:       { pack: 141.0, wh_mi: 410, curve: 'rivian_220',  top_mph: 115, top_kmh: 185 },
-  rivian_r1s:       { pack: 109.0, wh_mi: 395, curve: 'rivian_220',  top_mph: 115, top_kmh: 185 }
-};
+// ==========================================
+// SHARED DATA SOURCES (single source of truth)
+// ==========================================
+const EV_MODELS_URL = '../ev_models.json';
+const VERSION_URL   = '../version.json';
+const DEFAULT_VEHICLE_ID = 'tesla_my_lr_awd';
+
+// id -> { pack, wh_mi, curve, top_mph, top_kmh }, built from ev_models.json.
+// Only models that carry a `charging` block appear here (this tool needs a
+// DC charge curve and a top-speed limiter to model a trip).
+let VEHICLE_DATA = {};
+let VEHICLE_ORDER = [];
+
+// DC charge curves, keyed by curve name, loaded from ev_models.json.
+let CHARGE_CURVES = {};
+const FALLBACK_CURVE = 'standard_150';
+
+async function loadVehicleData() {
+  const res = await fetch(EV_MODELS_URL, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${EV_MODELS_URL}`);
+  const data = await res.json();
+  if (!data || !Array.isArray(data.models)) throw new Error('ev_models.json contains no models');
+
+  CHARGE_CURVES = (data.curves && typeof data.curves === 'object') ? data.curves : {};
+  if (!CHARGE_CURVES[FALLBACK_CURVE]) {
+    throw new Error(`ev_models.json is missing the ${FALLBACK_CURVE} curve`);
+  }
+
+  VEHICLE_DATA = {};
+  VEHICLE_ORDER = [];
+
+  data.models.forEach(m => {
+    if (!m.charging) return;
+    VEHICLE_DATA[m.id] = {
+      pack: m.battery_kwh,
+      wh_mi: m.charging.wh_mi,
+      curve: m.charging.curve,
+      top_mph: m.charging.top_mph,
+      top_kmh: m.charging.top_kmh
+    };
+    VEHICLE_ORDER.push({ id: m.id, group: m.group, name: m.name });
+  });
+
+  if (VEHICLE_ORDER.length === 0) throw new Error('no models with charging data');
+}
+
+function populateVehicleDropdown() {
+  const select = document.getElementById('vehiclePreset');
+  select.innerHTML = '';
+  select.disabled = false;
+
+  // Bucket by group, keeping first-appearance order, so entries sharing a
+  // group are collected even when they are not adjacent in the JSON.
+  const groups = new Map();
+  VEHICLE_ORDER.forEach(item => {
+    if (!groups.has(item.group)) groups.set(item.group, []);
+    groups.get(item.group).push(item);
+  });
+
+  groups.forEach((items, groupName) => {
+    const optGroup = document.createElement('optgroup');
+    optGroup.label = groupName;
+    items.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name;
+      optGroup.appendChild(option);
+    });
+    select.appendChild(optGroup);
+  });
+
+  select.value = VEHICLE_DATA[DEFAULT_VEHICLE_ID] ? DEFAULT_VEHICLE_ID : VEHICLE_ORDER[0].id;
+}
+
+function showVehicleDataError(err) {
+  const select = document.getElementById('vehiclePreset');
+  select.innerHTML = '<option>Vehicle database unavailable \u2014 enter values manually</option>';
+  select.disabled = true;
+  console.error('Vehicle database load failed:', err);
+}
+
+async function loadVersion() {
+  const el = document.getElementById('app-version');
+  if (!el) return;
+  try {
+    const res = await fetch(VERSION_URL, { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const v = await res.json();
+    el.textContent = `v${v.version}`;
+  } catch (e) {
+    console.warn('Version load failed:', e);
+    el.textContent = 'version unavailable';
+  }
+}
 
 let activeCurve = 'tesla_2170';
 
 function getVehicleCurvePower(curve, soc) {
-  switch (curve) {
-    case 'taycan_800v':
-      if (soc < 10) return 270;
-      if (soc < 60) return 320;
-      if (soc < 70) return 240;
-      if (soc < 80) return 160;
-      if (soc < 85) return 90;
-      return 40;
-    case 'egmp_800v':
-      if (soc < 5) return 180;
-      if (soc < 55) return 235;
-      if (soc < 70) return 175;
-      if (soc < 80) return 135;
-      if (soc < 85) return 60;
-      return 25;
-    case 'egmp_large':
-      if (soc < 5) return 170;
-      if (soc < 55) return 215;
-      if (soc < 70) return 170;
-      if (soc < 80) return 125;
-      return 25;
-    case 'tesla_2170':
-      if (soc < 10) return 170;
-      if (soc < 25) return 250;
-      if (soc < 40) return 195;
-      if (soc < 50) return 145;
-      if (soc < 60) return 105;
-      if (soc < 70) return 75;
-      if (soc < 80) return 50;
-      if (soc < 90) return 32;
-      return 15;
-    case 'tesla_lfp':
-      if (soc < 10) return 140;
-      if (soc < 40) return 170;
-      if (soc < 60) return 110;
-      if (soc < 75) return 75;
-      if (soc < 90) return 45;
-      return 20;
-    case 'tesla_4680':
-      if (soc < 15) return 230;
-      if (soc < 25) return 170;
-      if (soc < 35) return 115;
-      if (soc < 50) return 85;
-      if (soc < 65) return 65;
-      if (soc < 80) return 42;
-      return 25;
-    case 'tesla_ct':
-      if (soc < 15) return 250;
-      if (soc < 35) return 200;
-      if (soc < 50) return 150;
-      if (soc < 65) return 110;
-      if (soc < 80) return 75;
-      return 35;
-    case 'ultium_350':
-      if (soc < 35) return 350;
-      if (soc < 55) return 260;
-      if (soc < 70) return 170;
-      if (soc < 80) return 110;
-      return 40;
-    case 'rivian_220':
-    case 'large_250':
-      if (soc < 30) return (curve === 'large_250' ? 250 : 215);
-      if (soc < 50) return 165;
-      if (soc < 70) return 110;
-      if (soc < 80) return 65;
-      return 30;
-    case 'standard_150':
-    default:
-      if (soc < 40) return 150;
-      if (soc < 60) return 115;
-      if (soc < 75) return 85;
-      if (soc < 80) return 65;
-      if (soc < 90) return 35;
-      return 15;
+  // Curves live in ../ev_models.json under "curves" so a new platform can be
+  // added as data. steps = ordered [soc_below, kW]; first match wins.
+  const c = CHARGE_CURVES[curve] || CHARGE_CURVES[FALLBACK_CURVE];
+  if (!c) return 150;
+  for (let i = 0; i < c.steps.length; i++) {
+    if (soc < c.steps[i][0]) return c.steps[i][1];
   }
+  return c.tail;
 }
 
 function getCurrentState() {
@@ -409,7 +377,7 @@ function importJSON(event) {
 
 function resetDefaults() {
   localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('vehiclePreset').value = 'tesla_my_lr_awd';
+  document.getElementById('vehiclePreset').value = DEFAULT_VEHICLE_ID;
   document.getElementById('unit').value = 'miles';
   document.getElementById('distance').value = 380;
   document.getElementById('chargerPreset').value = '250';
@@ -617,11 +585,30 @@ function renderChart(results, bestIdx) {
   });
 }
 
-window.onload = () => {
+window.onload = async () => {
+  loadVersion();
+
+  try {
+    await loadVehicleData();
+  } catch (e) {
+    showVehicleDataError(e);
+    calculate();
+    return;
+  }
+
+  populateVehicleDropdown();
+
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
       applyState(JSON.parse(saved));
+      // A saved vehicle id may no longer exist in ev_models.json.
+      const select = document.getElementById('vehiclePreset');
+      if (!select.value || !VEHICLE_DATA[select.value]) {
+        select.value = DEFAULT_VEHICLE_ID;
+        onVehicleChange();
+        return;
+      }
       calculate();
       return;
     } catch (e) {

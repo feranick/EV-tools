@@ -38,6 +38,27 @@
     margin: 0 auto;
   }
 
+  .app-footer {
+    margin-top: 28px;
+    padding-top: 14px;
+    border-top: 1px solid var(--card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .app-footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .app-footer a:hover {
+    color: var(--accent);
+  }
+
   header {
     display: flex;
     flex-wrap: wrap;
@@ -784,6 +805,11 @@
 
     </div>
   </div>
+
+  <footer class="app-footer">
+    <a href="../index.html">EV Tools</a>
+    <span id="app-version">…</span>
+  </footer>
 </div>
 
 <script>
@@ -932,80 +958,82 @@ const I18N = {
 };
 
 // ==========================================
-// VEHICLE DATABASE
+// SHARED DATA SOURCES (single source of truth)
 // ==========================================
-const VEHICLE_DATA = [
-  // Tesla Model Y
-  { group: "Tesla Model Y", name: "Model Y Long Range AWD (78 kWh - Dual Motor)", battery: 78.0, eff_km: 6.40 },
-  { group: "Tesla Model Y", name: "Model Y Long Range RWD (78 kWh - Single Motor)", battery: 78.0, eff_km: 7.40 },
-  { group: "Tesla Model Y", name: "Model Y Standard RWD (60 kWh - LFP)", battery: 60.0, eff_km: 7.10 },
-  { group: "Tesla Model Y", name: "Model Y Standard AWD (68 kWh - 4680)", battery: 68.0, eff_km: 6.60 },
-  { group: "Tesla Model Y", name: "Model Y Performance AWD (78 kWh - 155 mph)", battery: 78.0, eff_km: 6.00 },
+const EV_MODELS_URL = "../ev_models.json";
+const VERSION_URL   = "../version.json";
 
-  // Other Tesla Models
-  { group: "Other Tesla Models", name: "Model 3 RWD (60 kWh LFP)", battery: 60.0, eff_km: 7.60 },
-  { group: "Other Tesla Models", name: "Model 3 Long Range (78 kWh)", battery: 78.0, eff_km: 7.00 },
-  { group: "Other Tesla Models", name: "Model S Long Range (95 kWh)", battery: 95.0, eff_km: 5.80 },
-  { group: "Other Tesla Models", name: "Model X Long Range (95 kWh)", battery: 95.0, eff_km: 5.00 },
-  { group: "Other Tesla Models", name: "Cybertruck AWD (123 kWh)", battery: 123.0, eff_km: 3.60 },
+// Populated at startup from ev_models.json. Array order defines the
+// dropdown option values (option value = model id).
+let VEHICLE_DATA = [];
 
-  // Porsche
-  { group: "Porsche", name: "Taycan Perf Plus (97 kWh - 800V)", battery: 97.0, eff_km: 4.80 },
+// Original 43-entry array order, used only to migrate a vehicleIdx saved
+// before ids became the option values.
+let LEGACY_INDEX_ORDER = [];
 
-  // Hyundai / Kia
-  { group: "Hyundai / Kia", name: "Ioniq 5 AWD (84 kWh)", battery: 84.0, eff_km: 5.40 },
-  { group: "Hyundai / Kia", name: "Ioniq 6 Long Range (77.4 kWh)", battery: 77.4, eff_km: 6.50 },
-  { group: "Hyundai / Kia", name: "EV6 AWD (84 kWh)", battery: 84.0, eff_km: 5.50 },
-  { group: "Hyundai / Kia", name: "EV6 GT (84 kWh - 161 mph)", battery: 84.0, eff_km: 4.70 },
-  { group: "Hyundai / Kia", name: "EV9 AWD (99.8 kWh)", battery: 99.8, eff_km: 4.40 },
+function vehicleById(id) {
+  return VEHICLE_DATA.find(v => v.id === id) || null;
+}
 
-  // Chevrolet
-  { group: "Chevrolet", name: "Equinox EV AWD (85 kWh)", battery: 85.0, eff_km: 5.00 },
-  { group: "Chevrolet", name: "Blazer EV AWD (85 kWh)", battery: 85.0, eff_km: 4.60 },
-  { group: "Chevrolet", name: "Silverado EV 4WT (205 kWh)", battery: 205.0, eff_km: 3.50 },
+// Accepts either a stored id or a legacy numeric index.
+function resolveVehicleId(saved) {
+  if (saved && saved.vehicleId && vehicleById(saved.vehicleId)) return saved.vehicleId;
+  if (saved && saved.vehicleIdx !== undefined && saved.vehicleIdx !== null) {
+    const migrated = LEGACY_INDEX_ORDER[parseInt(saved.vehicleIdx, 10)];
+    if (migrated && vehicleById(migrated)) return migrated;
+  }
+  return null;
+}
 
-  // Ford
-  { group: "Ford", name: "Mustang Mach-E Ext. AWD (91 kWh)", battery: 91.0, eff_km: 4.90 },
-  { group: "Ford", name: "F-150 Lightning Ext. (131 kWh)", battery: 131.0, eff_km: 3.20 },
+async function loadVehicleData() {
+  const res = await fetch(EV_MODELS_URL, { cache: "no-cache" });
+  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${EV_MODELS_URL}`);
+  const data = await res.json();
+  if (!data || !Array.isArray(data.models) || data.models.length === 0) {
+    throw new Error("ev_models.json contains no models");
+  }
+  LEGACY_INDEX_ORDER = Array.isArray(data.legacy_index_order) ? data.legacy_index_order : [];
+  VEHICLE_DATA = data.models.map(m => ({
+    id: m.id,
+    group: m.group,
+    name: m.name,
+    battery: m.battery_kwh,
+    eff_km: m.eff_km_kwh,
+    custom: m.custom === true
+  }));
+}
 
-  // Volvo
-  { group: "Volvo", name: "EX30 Twin Motor (64 kWh - 112 mph)", battery: 64.0, eff_km: 5.30 },
-  { group: "Volvo", name: "EX90 Twin Motor (106 kWh - 112 mph)", battery: 106.0, eff_km: 4.50 },
+async function loadVersion() {
+  const el = document.getElementById("app-version");
+  if (!el) return;
+  try {
+    const res = await fetch(VERSION_URL, { cache: "no-cache" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const v = await res.json();
+    el.textContent = `v${v.version}`;
+  } catch (e) {
+    console.warn("Version load failed:", e);
+    el.textContent = "version unavailable";
+  }
+}
 
-  // Rivian
-  { group: "Rivian", name: "R1T Dual Max (141 kWh)", battery: 141.0, eff_km: 3.40 },
-  { group: "Rivian", name: "R1S Dual Large (109 kWh)", battery: 109.0, eff_km: 3.50 },
+function showVehicleDataError(err) {
+  const select = document.getElementById("ev-select");
+  select.innerHTML = "";
+  const opt = document.createElement("option");
+  opt.textContent = "Vehicle database unavailable \u2014 enter values manually";
+  select.appendChild(opt);
+  select.disabled = true;
 
-  // Škoda (EU)
-  { group: "Škoda", name: "Škoda Enyaq 85 / 85x (77 kWh)", battery: 77.0, eff_km: 6.20 },
-  { group: "Škoda", name: "Škoda Enyaq 60 (58 kWh)", battery: 58.0, eff_km: 6.81 },
-  { group: "Škoda", name: "Škoda Elroq 85 (77 kWh)", battery: 77.0, eff_km: 6.50 },
+  document.getElementById("vehicle-quick-spec").textContent =
+    "\u26a0\ufe0f Could not load ../ev_models.json (" + err.message + ")";
 
-  // Volkswagen (EU)
-  { group: "Volkswagen", name: "VW ID.4 Pro (77 kWh)", battery: 77.0, eff_km: 6.10 },
-  { group: "Volkswagen", name: "VW ID.3 Pro (58 kWh)", battery: 58.0, eff_km: 6.90 },
-  { group: "Volkswagen", name: "VW ID.7 Pro (77 kWh)", battery: 77.0, eff_km: 7.10 },
-  { group: "Volkswagen", name: "VW ID.Buzz Pro (77 kWh)", battery: 77.0, eff_km: 4.80 },
-
-  // Renault (EU)
-  { group: "Renault", name: "Renault Scénic E-Tech EV87 (87 kWh)", battery: 87.0, eff_km: 6.00 },
-  { group: "Renault", name: "Renault Mégane E-Tech EV60 (60 kWh)", battery: 60.0, eff_km: 6.50 },
-  { group: "Renault", name: "Renault 5 E-Tech (52 kWh)", battery: 52.0, eff_km: 7.20 },
-
-  // Stellantis (EU)
-  { group: "Stellantis", name: "Peugeot E-3008 Long Range (73 kWh)", battery: 73.0, eff_km: 5.80 },
-  { group: "Stellantis", name: "Peugeot E-208 (51 kWh)", battery: 51.0, eff_km: 7.00 },
-  { group: "Stellantis", name: "Fiat 500e (42 kWh)", battery: 42.0, eff_km: 7.20 },
-  { group: "Stellantis", name: "Jeep Avenger EV (54 kWh)", battery: 54.0, eff_km: 6.50 },
-
-  // BMW / Mercedes / Audi (EU)
-  { group: "BMW / Mercedes / Audi", name: "BMW i4 eDrive40 (81.2 kWh)", battery: 81.2, eff_km: 6.30 },
-  { group: "BMW / Mercedes / Audi", name: "Mercedes-Benz EQE 350+ (90.6 kWh)", battery: 90.6, eff_km: 5.90 },
-  { group: "BMW / Mercedes / Audi", name: "Audi Q4 45 e-tron (77 kWh)", battery: 77.0, eff_km: 6.00 },
-
-  // Custom Option
-  { group: "Custom", name: "Custom / Manual Vehicle Entry", battery: 75.0, eff_km: 6.00 }
-];
+  // Keep the tool usable with manual entry.
+  document.getElementById("ev-battery").value = 78.0;
+  vehicleEffKm = 6.40;
+  document.getElementById("ev-efficiency").value =
+    (currentUnit === "si" ? vehicleEffKm : vehicleEffKm * KM_TO_MILES).toFixed(2);
+}
 
 // Constants & Storage Configuration
 const KM_TO_MILES = 1.0 / 1.609344;
@@ -1018,9 +1046,21 @@ let currentUnit = "si";
 let dailyDistanceKm = 50.0; // Default: 50 km (Metric) or 5 miles (Imperial)
 let vehicleEffKm = 6.40;
 
-function init() {
+async function init() {
+  loadVersion();
+
+  try {
+    await loadVehicleData();
+  } catch (e) {
+    console.error("Vehicle database load failed:", e);
+    showVehicleDataError(e);
+    applyTranslations();
+    calculate();
+    return;
+  }
+
   populateVehicleDropdown();
-  
+
   const saved = loadSavedSettings();
   if (saved) {
     applySavedSettings(saved);
@@ -1051,14 +1091,14 @@ function loadSavedSettings() {
 }
 
 function exportJsonConfig() {
-  const currentVehName = VEHICLE_DATA[document.getElementById("ev-select").value]?.name || "EV";
+  const currentVehName = vehicleById(document.getElementById("ev-select").value)?.name || "EV";
   const settings = {
     app: "EV_Solar_Calculator",
     version: "1.0",
     exportedAt: new Date().toISOString(),
     lang: currentLang,
     unit: currentUnit,
-    vehicleIdx: parseInt(document.getElementById("ev-select").value) || 0,
+    vehicleId: document.getElementById("ev-select").value,
     vehicleName: currentVehName,
     batteryKwh: parseFloat(document.getElementById("ev-battery").value) || 78.0,
     efficiencyKmKwh: vehicleEffKm,
@@ -1106,6 +1146,7 @@ function importJsonConfig(event) {
       const s = {
         lang: config.lang,
         unit: config.unit,
+        vehicleId: config.vehicleId,
         vehicleIdx: config.vehicleIdx,
         battery: config.batteryKwh !== undefined ? config.batteryKwh : config.battery,
         efficiencyKm: config.efficiencyKmKwh !== undefined ? config.efficiencyKmKwh : config.efficiencyKm,
@@ -1149,7 +1190,7 @@ function saveCurrentSettings() {
     const settings = {
       lang: currentLang,
       unit: currentUnit,
-      vehicleIdx: parseInt(document.getElementById("ev-select").value) || 0,
+      vehicleId: document.getElementById("ev-select").value,
       battery: parseFloat(document.getElementById("ev-battery").value) || 78.0,
       efficiencyKm: vehicleEffKm,
       dailyDistanceKm: dailyDistanceKm,
@@ -1181,8 +1222,22 @@ function applySavedSettings(s) {
   document.getElementById("lang-selector").value = currentLang;
   document.getElementById("unit-selector").value = currentUnit;
 
-  if (s.vehicleIdx !== undefined && document.getElementById("ev-select").options[s.vehicleIdx]) {
-    document.getElementById("ev-select").value = s.vehicleIdx;
+  const resolvedId = resolveVehicleId(s);
+  if (resolvedId) document.getElementById("ev-select").value = resolvedId;
+
+  // Keep the quick-spec line in sync on restore. It reflects the selected
+  // model's catalogue figures, so it is blank when the saved battery or
+  // efficiency has been edited away from them.
+  const restoredVeh = resolvedId ? vehicleById(resolvedId) : null;
+  const specEl = document.getElementById("vehicle-quick-spec");
+  if (restoredVeh && specEl) {
+    const savedBatt = (s.battery !== undefined) ? parseFloat(s.battery) : restoredVeh.battery;
+    const savedEff  = (s.efficiencyKm !== undefined) ? parseFloat(s.efficiencyKm) : restoredVeh.eff_km;
+    const stock = Math.abs(savedBatt - restoredVeh.battery) < 0.05 &&
+                  Math.abs(savedEff  - restoredVeh.eff_km)  < 0.005;
+    specEl.textContent = stock
+      ? `${restoredVeh.battery} kWh | ${restoredVeh.eff_km} km/kWh`
+      : `${savedBatt} kWh | ${savedEff.toFixed(2)} km/kWh (edited)`;
   }
   if (s.battery !== undefined) document.getElementById("ev-battery").value = s.battery;
   if (s.pvPower !== undefined) document.getElementById("pv-power").value = s.pvPower;
@@ -1271,7 +1326,7 @@ function populateVehicleDropdown() {
     optGroup.label = groupName;
     groups[groupName].forEach(item => {
       const option = document.createElement("option");
-      option.value = item.idx;
+      option.value = item.veh.id;
       option.textContent = item.veh.name;
       optGroup.appendChild(option);
     });
@@ -1358,7 +1413,7 @@ function applyTranslations() {
 
 function onVehicleSelect(triggerCalc = true) {
   const select = document.getElementById("ev-select");
-  const veh = VEHICLE_DATA[select.value];
+  const veh = vehicleById(select.value);
   if (!veh) return;
 
   document.getElementById("ev-battery").value = veh.battery;

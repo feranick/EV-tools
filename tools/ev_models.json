@@ -1,0 +1,2311 @@
+{
+  "schema": 2,
+  "updated": "2026-09-07",
+  "field_notes": {
+    "id": "Stable key. Used as the dropdown option value in both apps and persisted in saved settings. Do not rename an existing id.",
+    "group": "Optgroup label shared by both apps. Entries sharing a group are collected together even if not adjacent.",
+    "battery_kwh": "Usable pack size where published, otherwise the figure the app previously used.",
+    "eff_km_kwh": "Mixed-cycle efficiency, km/kWh. Used by ev_solar_calculator.html.",
+    "charging": "Highway/DC-fast parameters. Used by speed_vs_range.html.",
+    "charging.wh_mi": "Highway baseline consumption, Wh/mile. Deliberately independent of eff_km_kwh (highway vs mixed cycle) - both are stored, neither is derived.",
+    "charging.curve": "Key into the `curves` object below.",
+    "charging.est": "true = platform estimate, not a published per-variant figure. Treat as indicative.",
+    "custom": "Manual-entry placeholder row; carries no real vehicle data and no charging block.",
+    "curves": "DC charge curves as data. steps = ordered [soc_below, kW] pairs, first match wins; tail = kW at and above the last threshold. Add a platform here rather than editing the app JS.",
+    "curves.est": "true = curve shape is an estimate anchored to the published peak kW and 10-80% time in its note.",
+    "legacy_index_order": "The original 43-entry array order. Used once, to migrate a saved vehicleIdx from before ids were used as option values. Do not extend or reorder."
+  },
+  "curves": {
+    "tesla_2170": {
+      "steps": [
+        [
+          10,
+          170
+        ],
+        [
+          25,
+          250
+        ],
+        [
+          40,
+          195
+        ],
+        [
+          50,
+          145
+        ],
+        [
+          60,
+          105
+        ],
+        [
+          70,
+          75
+        ],
+        [
+          80,
+          50
+        ],
+        [
+          90,
+          32
+        ]
+      ],
+      "tail": 15,
+      "peak_kw": 250
+    },
+    "tesla_lfp": {
+      "steps": [
+        [
+          10,
+          140
+        ],
+        [
+          40,
+          170
+        ],
+        [
+          60,
+          110
+        ],
+        [
+          75,
+          75
+        ],
+        [
+          90,
+          45
+        ]
+      ],
+      "tail": 20,
+      "peak_kw": 170
+    },
+    "tesla_4680": {
+      "steps": [
+        [
+          15,
+          230
+        ],
+        [
+          25,
+          170
+        ],
+        [
+          35,
+          115
+        ],
+        [
+          50,
+          85
+        ],
+        [
+          65,
+          65
+        ],
+        [
+          80,
+          42
+        ]
+      ],
+      "tail": 25,
+      "peak_kw": 230
+    },
+    "tesla_ct": {
+      "steps": [
+        [
+          15,
+          250
+        ],
+        [
+          35,
+          200
+        ],
+        [
+          50,
+          150
+        ],
+        [
+          65,
+          110
+        ],
+        [
+          80,
+          75
+        ]
+      ],
+      "tail": 35,
+      "peak_kw": 250
+    },
+    "taycan_800v": {
+      "steps": [
+        [
+          10,
+          270
+        ],
+        [
+          60,
+          320
+        ],
+        [
+          70,
+          240
+        ],
+        [
+          80,
+          160
+        ],
+        [
+          85,
+          90
+        ]
+      ],
+      "tail": 40,
+      "peak_kw": 320,
+      "note": "Porsche/Audi J1 800V platform (Taycan, e-tron GT)"
+    },
+    "egmp_800v": {
+      "steps": [
+        [
+          5,
+          180
+        ],
+        [
+          55,
+          235
+        ],
+        [
+          70,
+          175
+        ],
+        [
+          80,
+          135
+        ],
+        [
+          85,
+          60
+        ]
+      ],
+      "tail": 25,
+      "peak_kw": 235
+    },
+    "egmp_large": {
+      "steps": [
+        [
+          5,
+          170
+        ],
+        [
+          55,
+          215
+        ],
+        [
+          70,
+          170
+        ],
+        [
+          80,
+          125
+        ]
+      ],
+      "tail": 25,
+      "peak_kw": 215,
+      "note": "Large 800V E-GMP packs (EV9, Ioniq 9)"
+    },
+    "ultium_350": {
+      "steps": [
+        [
+          35,
+          350
+        ],
+        [
+          55,
+          260
+        ],
+        [
+          70,
+          170
+        ],
+        [
+          80,
+          110
+        ]
+      ],
+      "tail": 40,
+      "peak_kw": 350
+    },
+    "rivian_220": {
+      "steps": [
+        [
+          30,
+          215
+        ],
+        [
+          50,
+          165
+        ],
+        [
+          70,
+          110
+        ],
+        [
+          80,
+          65
+        ]
+      ],
+      "tail": 30,
+      "peak_kw": 215
+    },
+    "large_250": {
+      "steps": [
+        [
+          30,
+          250
+        ],
+        [
+          50,
+          165
+        ],
+        [
+          70,
+          110
+        ],
+        [
+          80,
+          65
+        ]
+      ],
+      "tail": 30,
+      "peak_kw": 250
+    },
+    "standard_150": {
+      "steps": [
+        [
+          40,
+          150
+        ],
+        [
+          60,
+          115
+        ],
+        [
+          75,
+          85
+        ],
+        [
+          80,
+          65
+        ],
+        [
+          90,
+          35
+        ]
+      ],
+      "tail": 15,
+      "peak_kw": 150,
+      "note": "Generic 400V ~150 kW fallback; used when a curve key is unknown"
+    },
+    "neue_klasse_400": {
+      "steps": [
+        [
+          10,
+          320
+        ],
+        [
+          40,
+          400
+        ],
+        [
+          55,
+          300
+        ],
+        [
+          68,
+          215
+        ],
+        [
+          78,
+          150
+        ],
+        [
+          88,
+          85
+        ]
+      ],
+      "tail": 40,
+      "peak_kw": 400,
+      "est": true,
+      "note": "BMW Neue Klasse 800V (iX3, i3). Published: 400 kW peak, 10-80% in 21 min on 108.7 kWh"
+    },
+    "bmw_gen6_460": {
+      "steps": [
+        [
+          10,
+          340
+        ],
+        [
+          38,
+          460
+        ],
+        [
+          52,
+          310
+        ],
+        [
+          65,
+          220
+        ],
+        [
+          76,
+          155
+        ],
+        [
+          88,
+          90
+        ]
+      ],
+      "tail": 38,
+      "peak_kw": 460,
+      "est": true,
+      "note": "BMW 6th-gen eDrive 800V (iX5). Published: 460 kW peak on 141 kWh"
+    },
+    "bmw_clar_200": {
+      "steps": [
+        [
+          10,
+          150
+        ],
+        [
+          35,
+          200
+        ],
+        [
+          55,
+          160
+        ],
+        [
+          70,
+          120
+        ],
+        [
+          80,
+          75
+        ],
+        [
+          90,
+          40
+        ]
+      ],
+      "tail": 20,
+      "peak_kw": 200,
+      "est": true,
+      "note": "BMW CLAR 400V (i4, i5, i7, iX). Published: 175-205 kW peak depending on pack"
+    },
+    "mercedes_eq_200": {
+      "steps": [
+        [
+          10,
+          150
+        ],
+        [
+          32,
+          200
+        ],
+        [
+          52,
+          155
+        ],
+        [
+          67,
+          110
+        ],
+        [
+          80,
+          70
+        ],
+        [
+          90,
+          38
+        ]
+      ],
+      "tail": 18,
+      "peak_kw": 200,
+      "est": true,
+      "note": "Mercedes EVA2 400V (EQE, EQS, G 580). Published: 170-200 kW peak, 10-80% ~31 min"
+    },
+    "mercedes_eq_110": {
+      "steps": [
+        [
+          8,
+          95
+        ],
+        [
+          42,
+          110
+        ],
+        [
+          62,
+          92
+        ],
+        [
+          77,
+          65
+        ],
+        [
+          90,
+          38
+        ]
+      ],
+      "tail": 15,
+      "peak_kw": 110,
+      "est": true,
+      "note": "Mercedes EQA/EQB/EQV. Published: 100-110 kW peak, 10-80% ~30-35 min"
+    },
+    "mercedes_mma_320": {
+      "steps": [
+        [
+          8,
+          230
+        ],
+        [
+          35,
+          320
+        ],
+        [
+          50,
+          230
+        ],
+        [
+          65,
+          165
+        ],
+        [
+          76,
+          110
+        ],
+        [
+          87,
+          60
+        ]
+      ],
+      "tail": 28,
+      "peak_kw": 320,
+      "est": true,
+      "note": "Mercedes MMA 800V (CLA with EQ Technology). Published: 320 kW peak, 10-80% in 22 min"
+    },
+    "ppe_800v": {
+      "steps": [
+        [
+          10,
+          200
+        ],
+        [
+          40,
+          270
+        ],
+        [
+          55,
+          200
+        ],
+        [
+          68,
+          150
+        ],
+        [
+          78,
+          100
+        ],
+        [
+          88,
+          55
+        ]
+      ],
+      "tail": 25,
+      "peak_kw": 270,
+      "est": true,
+      "note": "VW Group PPE 800V (Audi Q6/A6 e-tron, Porsche Macan). Published: 270 kW peak, 10-80% in 21 min"
+    },
+    "etron_q8_170": {
+      "steps": [
+        [
+          10,
+          155
+        ],
+        [
+          40,
+          170
+        ],
+        [
+          58,
+          155
+        ],
+        [
+          72,
+          120
+        ],
+        [
+          82,
+          80
+        ],
+        [
+          92,
+          42
+        ]
+      ],
+      "tail": 20,
+      "peak_kw": 170,
+      "est": true,
+      "note": "Audi Q8 e-tron (MLB evo 400V). Published: 170 kW peak"
+    },
+    "meb_200": {
+      "steps": [
+        [
+          10,
+          160
+        ],
+        [
+          35,
+          200
+        ],
+        [
+          55,
+          165
+        ],
+        [
+          70,
+          125
+        ],
+        [
+          80,
+          85
+        ],
+        [
+          90,
+          45
+        ]
+      ],
+      "tail": 20,
+      "peak_kw": 200,
+      "est": true,
+      "note": "Later VW MEB 400V, larger packs (ID.7, ID.Buzz 86 kWh). Published: 175-200 kW peak"
+    },
+    "meb_175": {
+      "steps": [
+        [
+          10,
+          140
+        ],
+        [
+          35,
+          175
+        ],
+        [
+          55,
+          145
+        ],
+        [
+          70,
+          110
+        ],
+        [
+          80,
+          75
+        ],
+        [
+          90,
+          40
+        ]
+      ],
+      "tail": 20,
+      "peak_kw": 175,
+      "est": true,
+      "note": "VW MEB 400V 77 kWh (ID.4, ID.5, Enyaq/Elroq 85, Audi Q4). Published: 135-185 kW peak"
+    },
+    "meb_135": {
+      "steps": [
+        [
+          10,
+          110
+        ],
+        [
+          40,
+          135
+        ],
+        [
+          60,
+          110
+        ],
+        [
+          75,
+          80
+        ],
+        [
+          90,
+          45
+        ]
+      ],
+      "tail": 18,
+      "peak_kw": 135,
+      "est": true,
+      "note": "VW MEB 400V 58 kWh (ID.3 Pro, Enyaq 60). Published: 120-135 kW peak"
+    },
+    "volvo_ex30_153": {
+      "steps": [
+        [
+          10,
+          120
+        ],
+        [
+          40,
+          153
+        ],
+        [
+          60,
+          120
+        ],
+        [
+          75,
+          85
+        ],
+        [
+          90,
+          50
+        ]
+      ],
+      "tail": 20,
+      "peak_kw": 153,
+      "est": true,
+      "note": "Volvo EX30 (SEA 400V). Published: 153 kW peak"
+    },
+    "volvo_cma_200": {
+      "steps": [
+        [
+          8,
+          140
+        ],
+        [
+          25,
+          200
+        ],
+        [
+          45,
+          150
+        ],
+        [
+          62,
+          110
+        ],
+        [
+          75,
+          70
+        ],
+        [
+          88,
+          40
+        ]
+      ],
+      "tail": 18,
+      "peak_kw": 200,
+      "est": true,
+      "note": "Volvo EX40/EC40 (CMA 400V). Published: ~200-207 kW peak"
+    },
+    "kia_ev3_128": {
+      "steps": [
+        [
+          8,
+          115
+        ],
+        [
+          48,
+          128
+        ],
+        [
+          65,
+          110
+        ],
+        [
+          78,
+          80
+        ],
+        [
+          90,
+          48
+        ]
+      ],
+      "tail": 18,
+      "peak_kw": 128,
+      "est": true,
+      "note": "Kia EV3 (400V E-GMP). Published: 128 kW peak, 10-80% in 31 min"
+    },
+    "renault_150": {
+      "steps": [
+        [
+          8,
+          130
+        ],
+        [
+          42,
+          150
+        ],
+        [
+          60,
+          128
+        ],
+        [
+          74,
+          95
+        ],
+        [
+          86,
+          55
+        ]
+      ],
+      "tail": 18,
+      "peak_kw": 150,
+      "est": true,
+      "note": "Renault CMF-EV (Megane 130 kW, Scenic 150 kW)"
+    },
+    "renault_100": {
+      "steps": [
+        [
+          10,
+          85
+        ],
+        [
+          45,
+          100
+        ],
+        [
+          62,
+          80
+        ],
+        [
+          75,
+          60
+        ],
+        [
+          88,
+          35
+        ]
+      ],
+      "tail": 15,
+      "peak_kw": 100,
+      "est": true,
+      "note": "Renault AmpR Small 52 kWh (R5 EV52, R4). Published: 100 kW peak, 15-80% in 30 min"
+    },
+    "renault_80": {
+      "steps": [
+        [
+          10,
+          70
+        ],
+        [
+          45,
+          80
+        ],
+        [
+          62,
+          65
+        ],
+        [
+          75,
+          48
+        ],
+        [
+          88,
+          30
+        ]
+      ],
+      "tail": 12,
+      "peak_kw": 80,
+      "est": true,
+      "note": "Renault AmpR Small 40 kWh (R5 EV40). Published: 80 kW peak, 15-80% in 31 min"
+    },
+    "stellantis_160": {
+      "steps": [
+        [
+          10,
+          130
+        ],
+        [
+          40,
+          160
+        ],
+        [
+          58,
+          130
+        ],
+        [
+          72,
+          95
+        ],
+        [
+          85,
+          55
+        ]
+      ],
+      "tail": 18,
+      "peak_kw": 160,
+      "est": true,
+      "note": "Stellantis STLA Medium (E-3008). Published: ~160 kW peak"
+    },
+    "stellantis_100": {
+      "steps": [
+        [
+          10,
+          85
+        ],
+        [
+          40,
+          100
+        ],
+        [
+          60,
+          80
+        ],
+        [
+          75,
+          58
+        ],
+        [
+          88,
+          35
+        ]
+      ],
+      "tail": 15,
+      "peak_kw": 100,
+      "est": true,
+      "note": "Stellantis e-CMP (e-208, 500e, Avenger). Published: 85-100 kW peak"
+    }
+  },
+  "legacy_index_order": [
+    "tesla_my_lr_awd",
+    "tesla_my_lr_rwd",
+    "tesla_my_std_rwd",
+    "tesla_my_std_awd",
+    "tesla_my_p",
+    "tesla_m3_rwd",
+    "tesla_m3_lr",
+    "tesla_ms_lr",
+    "tesla_mx_lr",
+    "tesla_ct",
+    "porsche_taycan",
+    "hyundai_ioniq5",
+    "hyundai_ioniq6",
+    "kia_ev6",
+    "kia_ev6_gt",
+    "kia_ev9",
+    "chevy_equinox",
+    "chevy_blazer",
+    "chevy_silverado",
+    "ford_mache",
+    "ford_lightning",
+    "volvo_ex30",
+    "volvo_ex90",
+    "rivian_r1t",
+    "rivian_r1s",
+    "skoda_enyaq_85",
+    "skoda_enyaq_60",
+    "skoda_elroq_85",
+    "vw_id4_pro",
+    "vw_id3_pro",
+    "vw_id7_pro",
+    "vw_idbuzz_pro",
+    "renault_scenic_ev87",
+    "renault_megane_ev60",
+    "renault_5_etech",
+    "peugeot_e3008_lr",
+    "peugeot_e208",
+    "fiat_500e",
+    "jeep_avenger_ev",
+    "bmw_i4_edrive40",
+    "mercedes_eqe_350",
+    "audi_q4_45_etron",
+    "custom"
+  ],
+  "models": [
+    {
+      "id": "tesla_my_lr_awd",
+      "group": "Tesla Model Y",
+      "name": "Model Y Long Range AWD (78 kWh - Dual Motor)",
+      "battery_kwh": 78.0,
+      "eff_km_kwh": 6.4,
+      "charging": {
+        "wh_mi": 265,
+        "curve": "tesla_2170",
+        "top_mph": 135,
+        "top_kmh": 217
+      }
+    },
+    {
+      "id": "tesla_my_lr_rwd",
+      "group": "Tesla Model Y",
+      "name": "Model Y Long Range RWD (78 kWh - Single Motor)",
+      "battery_kwh": 78.0,
+      "eff_km_kwh": 7.4,
+      "charging": {
+        "wh_mi": 245,
+        "curve": "tesla_2170",
+        "top_mph": 135,
+        "top_kmh": 217
+      }
+    },
+    {
+      "id": "tesla_my_std_rwd",
+      "group": "Tesla Model Y",
+      "name": "Model Y Standard RWD (60 kWh - LFP)",
+      "battery_kwh": 60.0,
+      "eff_km_kwh": 7.1,
+      "charging": {
+        "wh_mi": 235,
+        "curve": "tesla_lfp",
+        "top_mph": 135,
+        "top_kmh": 217
+      }
+    },
+    {
+      "id": "tesla_my_std_awd",
+      "group": "Tesla Model Y",
+      "name": "Model Y Standard AWD (68 kWh - 4680)",
+      "battery_kwh": 68.0,
+      "eff_km_kwh": 6.6,
+      "charging": {
+        "wh_mi": 255,
+        "curve": "tesla_4680",
+        "top_mph": 135,
+        "top_kmh": 217
+      }
+    },
+    {
+      "id": "tesla_my_p",
+      "group": "Tesla Model Y",
+      "name": "Model Y Performance AWD (78 kWh - 155 mph)",
+      "battery_kwh": 78.0,
+      "eff_km_kwh": 6.0,
+      "charging": {
+        "wh_mi": 280,
+        "curve": "tesla_2170",
+        "top_mph": 155,
+        "top_kmh": 250
+      }
+    },
+    {
+      "id": "tesla_m3_rwd",
+      "group": "Other Tesla Models",
+      "name": "Model 3 RWD (60 kWh LFP)",
+      "battery_kwh": 60.0,
+      "eff_km_kwh": 7.6,
+      "charging": {
+        "wh_mi": 220,
+        "curve": "tesla_lfp",
+        "top_mph": 125,
+        "top_kmh": 201
+      }
+    },
+    {
+      "id": "tesla_m3_lr",
+      "group": "Other Tesla Models",
+      "name": "Model 3 Long Range (78 kWh)",
+      "battery_kwh": 78.0,
+      "eff_km_kwh": 7.0,
+      "charging": {
+        "wh_mi": 240,
+        "curve": "tesla_2170",
+        "top_mph": 125,
+        "top_kmh": 201
+      }
+    },
+    {
+      "id": "tesla_ms_lr",
+      "group": "Other Tesla Models",
+      "name": "Model S Long Range (95 kWh)",
+      "battery_kwh": 95.0,
+      "eff_km_kwh": 5.8,
+      "charging": {
+        "wh_mi": 280,
+        "curve": "tesla_2170",
+        "top_mph": 130,
+        "top_kmh": 209
+      }
+    },
+    {
+      "id": "tesla_mx_lr",
+      "group": "Other Tesla Models",
+      "name": "Model X Long Range (95 kWh)",
+      "battery_kwh": 95.0,
+      "eff_km_kwh": 5.0,
+      "charging": {
+        "wh_mi": 330,
+        "curve": "tesla_2170",
+        "top_mph": 130,
+        "top_kmh": 209
+      }
+    },
+    {
+      "id": "tesla_ct",
+      "group": "Other Tesla Models",
+      "name": "Cybertruck AWD (123 kWh)",
+      "battery_kwh": 123.0,
+      "eff_km_kwh": 3.6,
+      "charging": {
+        "wh_mi": 430,
+        "curve": "tesla_ct",
+        "top_mph": 112,
+        "top_kmh": 180
+      }
+    },
+    {
+      "id": "porsche_taycan",
+      "group": "Porsche",
+      "name": "Taycan Perf Plus (97 kWh - 800V)",
+      "battery_kwh": 97.0,
+      "eff_km_kwh": 4.8,
+      "charging": {
+        "wh_mi": 295,
+        "curve": "taycan_800v",
+        "top_mph": 155,
+        "top_kmh": 250
+      }
+    },
+    {
+      "id": "hyundai_ioniq5",
+      "group": "Hyundai / Kia",
+      "name": "Ioniq 5 AWD (84 kWh)",
+      "battery_kwh": 84.0,
+      "eff_km_kwh": 5.4,
+      "charging": {
+        "wh_mi": 290,
+        "curve": "egmp_800v",
+        "top_mph": 115,
+        "top_kmh": 185
+      }
+    },
+    {
+      "id": "hyundai_ioniq5_rwd",
+      "group": "Hyundai / Kia",
+      "name": "Ioniq 5 RWD (84 kWh)",
+      "battery_kwh": 84.0,
+      "eff_km_kwh": 6.2,
+      "charging": {
+        "wh_mi": 265,
+        "curve": "egmp_800v",
+        "top_mph": 115,
+        "top_kmh": 185,
+        "est": true
+      }
+    },
+    {
+      "id": "hyundai_ioniq5_n",
+      "group": "Hyundai / Kia",
+      "name": "Ioniq 5 N (84 kWh - 162 mph)",
+      "battery_kwh": 84.0,
+      "eff_km_kwh": 4.4,
+      "charging": {
+        "wh_mi": 360,
+        "curve": "egmp_800v",
+        "top_mph": 162,
+        "top_kmh": 260,
+        "est": true
+      }
+    },
+    {
+      "id": "hyundai_ioniq6",
+      "group": "Hyundai / Kia",
+      "name": "Ioniq 6 Long Range (77.4 kWh)",
+      "battery_kwh": 77.4,
+      "eff_km_kwh": 6.5,
+      "charging": {
+        "wh_mi": 235,
+        "curve": "egmp_800v",
+        "top_mph": 115,
+        "top_kmh": 185
+      }
+    },
+    {
+      "id": "hyundai_ioniq9_rwd",
+      "group": "Hyundai / Kia",
+      "name": "Ioniq 9 Long Range RWD (110.3 kWh)",
+      "battery_kwh": 110.3,
+      "eff_km_kwh": 5.2,
+      "charging": {
+        "wh_mi": 330,
+        "curve": "egmp_large",
+        "top_mph": 118,
+        "top_kmh": 190,
+        "est": true
+      }
+    },
+    {
+      "id": "hyundai_ioniq9_awd",
+      "group": "Hyundai / Kia",
+      "name": "Ioniq 9 Long Range AWD (110.3 kWh)",
+      "battery_kwh": 110.3,
+      "eff_km_kwh": 4.9,
+      "charging": {
+        "wh_mi": 355,
+        "curve": "egmp_large",
+        "top_mph": 118,
+        "top_kmh": 190,
+        "est": true
+      }
+    },
+    {
+      "id": "kia_ev6",
+      "group": "Hyundai / Kia",
+      "name": "EV6 AWD (84 kWh)",
+      "battery_kwh": 84.0,
+      "eff_km_kwh": 5.5,
+      "charging": {
+        "wh_mi": 285,
+        "curve": "egmp_800v",
+        "top_mph": 115,
+        "top_kmh": 185
+      }
+    },
+    {
+      "id": "kia_ev6_rwd",
+      "group": "Hyundai / Kia",
+      "name": "EV6 RWD (84 kWh)",
+      "battery_kwh": 84.0,
+      "eff_km_kwh": 6.2,
+      "charging": {
+        "wh_mi": 250,
+        "curve": "egmp_800v",
+        "top_mph": 115,
+        "top_kmh": 185,
+        "est": true
+      }
+    },
+    {
+      "id": "kia_ev6_gt",
+      "group": "Hyundai / Kia",
+      "name": "EV6 GT (84 kWh - 161 mph)",
+      "battery_kwh": 84.0,
+      "eff_km_kwh": 4.7,
+      "charging": {
+        "wh_mi": 330,
+        "curve": "egmp_800v",
+        "top_mph": 161,
+        "top_kmh": 260
+      }
+    },
+    {
+      "id": "kia_ev9",
+      "group": "Hyundai / Kia",
+      "name": "EV9 AWD (99.8 kWh)",
+      "battery_kwh": 99.8,
+      "eff_km_kwh": 4.4,
+      "charging": {
+        "wh_mi": 360,
+        "curve": "egmp_large",
+        "top_mph": 118,
+        "top_kmh": 190
+      }
+    },
+    {
+      "id": "kia_ev9_rwd",
+      "group": "Hyundai / Kia",
+      "name": "EV9 RWD (99.8 kWh)",
+      "battery_kwh": 99.8,
+      "eff_km_kwh": 4.8,
+      "charging": {
+        "wh_mi": 330,
+        "curve": "egmp_large",
+        "top_mph": 118,
+        "top_kmh": 190,
+        "est": true
+      }
+    },
+    {
+      "id": "kia_ev3_lr",
+      "group": "Hyundai / Kia",
+      "name": "Kia EV3 Long Range (81.4 kWh)",
+      "battery_kwh": 81.4,
+      "eff_km_kwh": 6.6,
+      "charging": {
+        "wh_mi": 260,
+        "curve": "kia_ev3_128",
+        "top_mph": 106,
+        "top_kmh": 170,
+        "est": true
+      }
+    },
+    {
+      "id": "kia_ev3_sr",
+      "group": "Hyundai / Kia",
+      "name": "Kia EV3 Standard (58.3 kWh)",
+      "battery_kwh": 58.3,
+      "eff_km_kwh": 6.8,
+      "charging": {
+        "wh_mi": 255,
+        "curve": "kia_ev3_128",
+        "top_mph": 106,
+        "top_kmh": 170,
+        "est": true
+      }
+    },
+    {
+      "id": "chevy_equinox",
+      "group": "Chevrolet",
+      "name": "Equinox EV AWD (85 kWh)",
+      "battery_kwh": 85.0,
+      "eff_km_kwh": 5.0,
+      "charging": {
+        "wh_mi": 295,
+        "curve": "standard_150",
+        "top_mph": 110,
+        "top_kmh": 177
+      }
+    },
+    {
+      "id": "chevy_equinox_rwd",
+      "group": "Chevrolet",
+      "name": "Equinox EV RWD (85 kWh)",
+      "battery_kwh": 85.0,
+      "eff_km_kwh": 5.3,
+      "charging": {
+        "wh_mi": 275,
+        "curve": "standard_150",
+        "top_mph": 110,
+        "top_kmh": 177,
+        "est": true
+      }
+    },
+    {
+      "id": "chevy_blazer",
+      "group": "Chevrolet",
+      "name": "Blazer EV AWD (85 kWh)",
+      "battery_kwh": 85.0,
+      "eff_km_kwh": 4.6,
+      "charging": {
+        "wh_mi": 330,
+        "curve": "standard_150",
+        "top_mph": 112,
+        "top_kmh": 180
+      }
+    },
+    {
+      "id": "chevy_blazer_rwd",
+      "group": "Chevrolet",
+      "name": "Blazer EV RWD (85 kWh)",
+      "battery_kwh": 85.0,
+      "eff_km_kwh": 5.5,
+      "charging": {
+        "wh_mi": 290,
+        "curve": "standard_150",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "chevy_silverado",
+      "group": "Chevrolet",
+      "name": "Silverado EV 4WT (205 kWh)",
+      "battery_kwh": 205.0,
+      "eff_km_kwh": 3.5,
+      "charging": {
+        "wh_mi": 480,
+        "curve": "ultium_350",
+        "top_mph": 106,
+        "top_kmh": 170
+      }
+    },
+    {
+      "id": "ford_mache",
+      "group": "Ford",
+      "name": "Mustang Mach-E Ext. AWD (91 kWh)",
+      "battery_kwh": 91.0,
+      "eff_km_kwh": 4.9,
+      "charging": {
+        "wh_mi": 320,
+        "curve": "standard_150",
+        "top_mph": 111,
+        "top_kmh": 180
+      }
+    },
+    {
+      "id": "ford_mache_rwd",
+      "group": "Ford",
+      "name": "Mustang Mach-E Ext. RWD (91 kWh)",
+      "battery_kwh": 91.0,
+      "eff_km_kwh": 5.6,
+      "charging": {
+        "wh_mi": 285,
+        "curve": "standard_150",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "ford_lightning",
+      "group": "Ford",
+      "name": "F-150 Lightning Ext. (131 kWh)",
+      "battery_kwh": 131.0,
+      "eff_km_kwh": 3.2,
+      "charging": {
+        "wh_mi": 460,
+        "curve": "standard_150",
+        "top_mph": 106,
+        "top_kmh": 170
+      }
+    },
+    {
+      "id": "volvo_ex30",
+      "group": "Volvo",
+      "name": "EX30 Twin Motor (64 kWh - 112 mph)",
+      "battery_kwh": 64.0,
+      "eff_km_kwh": 5.3,
+      "charging": {
+        "wh_mi": 290,
+        "curve": "standard_150",
+        "top_mph": 112,
+        "top_kmh": 180
+      }
+    },
+    {
+      "id": "volvo_ex30_single",
+      "group": "Volvo",
+      "name": "EX30 Single Motor Ext. Range (64 kWh)",
+      "battery_kwh": 64.0,
+      "eff_km_kwh": 5.9,
+      "charging": {
+        "wh_mi": 265,
+        "curve": "volvo_ex30_153",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "volvo_ex40_single",
+      "group": "Volvo",
+      "name": "EX40 Single Motor Ext. Range (79 kWh)",
+      "battery_kwh": 79.0,
+      "eff_km_kwh": 5.1,
+      "charging": {
+        "wh_mi": 300,
+        "curve": "volvo_cma_200",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "volvo_ex40_twin",
+      "group": "Volvo",
+      "name": "EX40 Twin Motor (79 kWh)",
+      "battery_kwh": 79.0,
+      "eff_km_kwh": 4.7,
+      "charging": {
+        "wh_mi": 320,
+        "curve": "volvo_cma_200",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "volvo_ex90",
+      "group": "Volvo",
+      "name": "EX90 Twin Motor (106 kWh - 112 mph)",
+      "battery_kwh": 106.0,
+      "eff_km_kwh": 4.5,
+      "charging": {
+        "wh_mi": 380,
+        "curve": "large_250",
+        "top_mph": 112,
+        "top_kmh": 180
+      }
+    },
+    {
+      "id": "rivian_r1t",
+      "group": "Rivian",
+      "name": "R1T Dual Max (141 kWh)",
+      "battery_kwh": 141.0,
+      "eff_km_kwh": 3.4,
+      "charging": {
+        "wh_mi": 410,
+        "curve": "rivian_220",
+        "top_mph": 115,
+        "top_kmh": 185
+      }
+    },
+    {
+      "id": "rivian_r1s",
+      "group": "Rivian",
+      "name": "R1S Dual Large (109 kWh)",
+      "battery_kwh": 109.0,
+      "eff_km_kwh": 3.5,
+      "charging": {
+        "wh_mi": 395,
+        "curve": "rivian_220",
+        "top_mph": 115,
+        "top_kmh": 185
+      }
+    },
+    {
+      "id": "rivian_r1t_std",
+      "group": "Rivian",
+      "name": "R1T Dual Standard (92.5 kWh - LFP)",
+      "battery_kwh": 92.5,
+      "eff_km_kwh": 4.0,
+      "charging": {
+        "wh_mi": 345,
+        "curve": "rivian_220",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "rivian_r1s_std",
+      "group": "Rivian",
+      "name": "R1S Dual Standard (92.5 kWh - LFP)",
+      "battery_kwh": 92.5,
+      "eff_km_kwh": 3.9,
+      "charging": {
+        "wh_mi": 355,
+        "curve": "rivian_220",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "rivian_r1t_tri",
+      "group": "Rivian",
+      "name": "R1T Tri Max (141 kWh)",
+      "battery_kwh": 141.0,
+      "eff_km_kwh": 3.1,
+      "charging": {
+        "wh_mi": 450,
+        "curve": "rivian_220",
+        "top_mph": 115,
+        "top_kmh": 185,
+        "est": true
+      }
+    },
+    {
+      "id": "rivian_r1s_tri",
+      "group": "Rivian",
+      "name": "R1S Tri Max (141 kWh)",
+      "battery_kwh": 141.0,
+      "eff_km_kwh": 3.2,
+      "charging": {
+        "wh_mi": 440,
+        "curve": "rivian_220",
+        "top_mph": 115,
+        "top_kmh": 185,
+        "est": true
+      }
+    },
+    {
+      "id": "skoda_enyaq_85",
+      "group": "Škoda",
+      "name": "Škoda Enyaq 85 / 85x (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 6.2,
+      "charging": {
+        "wh_mi": 300,
+        "curve": "meb_175",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "skoda_enyaq_60",
+      "group": "Škoda",
+      "name": "Škoda Enyaq 60 (58 kWh)",
+      "battery_kwh": 58.0,
+      "eff_km_kwh": 6.81,
+      "charging": {
+        "wh_mi": 290,
+        "curve": "meb_135",
+        "top_mph": 100,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "skoda_elroq_85",
+      "group": "Škoda",
+      "name": "Škoda Elroq 85 (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 6.5,
+      "charging": {
+        "wh_mi": 285,
+        "curve": "meb_175",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_id4_pro",
+      "group": "Volkswagen",
+      "name": "VW ID.4 Pro RWD (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 6.1,
+      "charging": {
+        "wh_mi": 285,
+        "curve": "meb_175",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_id4_pro_s",
+      "group": "Volkswagen",
+      "name": "VW ID.4 Pro S RWD (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 6.0,
+      "charging": {
+        "wh_mi": 290,
+        "curve": "meb_175",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_id4_pro_4motion",
+      "group": "Volkswagen",
+      "name": "VW ID.4 Pro 4MOTION AWD (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 5.3,
+      "charging": {
+        "wh_mi": 320,
+        "curve": "meb_175",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_id3_pro",
+      "group": "Volkswagen",
+      "name": "VW ID.3 Pro (58 kWh)",
+      "battery_kwh": 58.0,
+      "eff_km_kwh": 6.9,
+      "charging": {
+        "wh_mi": 270,
+        "curve": "meb_135",
+        "top_mph": 99,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_id5_pro",
+      "group": "Volkswagen",
+      "name": "VW ID.5 Pro RWD (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 6.3,
+      "charging": {
+        "wh_mi": 275,
+        "curve": "meb_175",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_id7_pro",
+      "group": "Volkswagen",
+      "name": "VW ID.7 Pro (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 7.1,
+      "charging": {
+        "wh_mi": 250,
+        "curve": "meb_200",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_id7_pro_s",
+      "group": "Volkswagen",
+      "name": "VW ID.7 Pro S (86 kWh)",
+      "battery_kwh": 86.0,
+      "eff_km_kwh": 7.3,
+      "charging": {
+        "wh_mi": 245,
+        "curve": "meb_200",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_idbuzz_pro",
+      "group": "Volkswagen",
+      "name": "VW ID.Buzz Pro RWD (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 4.8,
+      "charging": {
+        "wh_mi": 400,
+        "curve": "meb_175",
+        "top_mph": 99,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_idbuzz_lwb_pro",
+      "group": "Volkswagen",
+      "name": "VW ID.Buzz LWB Pro RWD (86 kWh)",
+      "battery_kwh": 86.0,
+      "eff_km_kwh": 4.6,
+      "charging": {
+        "wh_mi": 405,
+        "curve": "meb_200",
+        "top_mph": 99,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "vw_idbuzz_gtx",
+      "group": "Volkswagen",
+      "name": "VW ID.Buzz GTX AWD (86 kWh)",
+      "battery_kwh": 86.0,
+      "eff_km_kwh": 4.2,
+      "charging": {
+        "wh_mi": 435,
+        "curve": "meb_200",
+        "top_mph": 99,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "renault_scenic_ev87",
+      "group": "Renault",
+      "name": "Renault Scénic E-Tech EV87 (87 kWh)",
+      "battery_kwh": 87.0,
+      "eff_km_kwh": 6.0,
+      "charging": {
+        "wh_mi": 295,
+        "curve": "renault_150",
+        "top_mph": 105,
+        "top_kmh": 170,
+        "est": true
+      }
+    },
+    {
+      "id": "renault_megane_ev60",
+      "group": "Renault",
+      "name": "Renault Mégane E-Tech EV60 (60 kWh)",
+      "battery_kwh": 60.0,
+      "eff_km_kwh": 6.5,
+      "charging": {
+        "wh_mi": 270,
+        "curve": "renault_150",
+        "top_mph": 99,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "renault_5_etech",
+      "group": "Renault",
+      "name": "Renault 5 E-Tech EV52 (52 kWh)",
+      "battery_kwh": 52.0,
+      "eff_km_kwh": 7.2,
+      "charging": {
+        "wh_mi": 245,
+        "curve": "renault_100",
+        "top_mph": 93,
+        "top_kmh": 150,
+        "est": true
+      }
+    },
+    {
+      "id": "renault_5_etech_40",
+      "group": "Renault",
+      "name": "Renault 5 E-Tech EV40 (40 kWh)",
+      "battery_kwh": 40.0,
+      "eff_km_kwh": 7.0,
+      "charging": {
+        "wh_mi": 240,
+        "curve": "renault_80",
+        "top_mph": 93,
+        "top_kmh": 150,
+        "est": true
+      }
+    },
+    {
+      "id": "renault_4_etech_52",
+      "group": "Renault",
+      "name": "Renault 4 E-Tech EV52 (52 kWh)",
+      "battery_kwh": 52.0,
+      "eff_km_kwh": 6.8,
+      "charging": {
+        "wh_mi": 260,
+        "curve": "renault_100",
+        "top_mph": 93,
+        "top_kmh": 150,
+        "est": true
+      }
+    },
+    {
+      "id": "peugeot_e3008_lr",
+      "group": "Stellantis",
+      "name": "Peugeot E-3008 Long Range (73 kWh)",
+      "battery_kwh": 73.0,
+      "eff_km_kwh": 5.8,
+      "charging": {
+        "wh_mi": 305,
+        "curve": "stellantis_160",
+        "top_mph": 106,
+        "top_kmh": 170,
+        "est": true
+      }
+    },
+    {
+      "id": "peugeot_e208",
+      "group": "Stellantis",
+      "name": "Peugeot E-208 (51 kWh)",
+      "battery_kwh": 51.0,
+      "eff_km_kwh": 7.0,
+      "charging": {
+        "wh_mi": 250,
+        "curve": "stellantis_100",
+        "top_mph": 93,
+        "top_kmh": 150,
+        "est": true
+      }
+    },
+    {
+      "id": "fiat_500e",
+      "group": "Stellantis",
+      "name": "Fiat 500e (42 kWh)",
+      "battery_kwh": 42.0,
+      "eff_km_kwh": 7.2,
+      "charging": {
+        "wh_mi": 245,
+        "curve": "stellantis_100",
+        "top_mph": 93,
+        "top_kmh": 150,
+        "est": true
+      }
+    },
+    {
+      "id": "jeep_avenger_ev",
+      "group": "Stellantis",
+      "name": "Jeep Avenger EV (54 kWh)",
+      "battery_kwh": 54.0,
+      "eff_km_kwh": 6.5,
+      "charging": {
+        "wh_mi": 270,
+        "curve": "stellantis_100",
+        "top_mph": 93,
+        "top_kmh": 150,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_ix3_50",
+      "group": "BMW",
+      "name": "BMW iX3 50 xDrive (108.7 kWh - 800V)",
+      "battery_kwh": 108.7,
+      "eff_km_kwh": 5.9,
+      "charging": {
+        "wh_mi": 285,
+        "curve": "neue_klasse_400",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_i3_50",
+      "group": "BMW",
+      "name": "BMW i3 50 xDrive (108.7 kWh - 800V)",
+      "battery_kwh": 108.7,
+      "eff_km_kwh": 6.6,
+      "charging": {
+        "wh_mi": 255,
+        "curve": "neue_klasse_400",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_ix5_60",
+      "group": "BMW",
+      "name": "BMW iX5 60 xDrive (141 kWh - 800V)",
+      "battery_kwh": 141.0,
+      "eff_km_kwh": 5.0,
+      "charging": {
+        "wh_mi": 330,
+        "curve": "bmw_gen6_460",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_i4_edrive40",
+      "group": "BMW",
+      "name": "BMW i4 eDrive40 (81.2 kWh)",
+      "battery_kwh": 81.2,
+      "eff_km_kwh": 6.3,
+      "charging": {
+        "wh_mi": 265,
+        "curve": "bmw_clar_200",
+        "top_mph": 118,
+        "top_kmh": 190,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_i4_m50",
+      "group": "BMW",
+      "name": "BMW i4 M50 (81.2 kWh)",
+      "battery_kwh": 81.2,
+      "eff_km_kwh": 5.3,
+      "charging": {
+        "wh_mi": 305,
+        "curve": "bmw_clar_200",
+        "top_mph": 140,
+        "top_kmh": 225,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_i5_edrive40",
+      "group": "BMW",
+      "name": "BMW i5 eDrive40 (81.2 kWh)",
+      "battery_kwh": 81.2,
+      "eff_km_kwh": 6.2,
+      "charging": {
+        "wh_mi": 270,
+        "curve": "bmw_clar_200",
+        "top_mph": 120,
+        "top_kmh": 193,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_i7_edrive50",
+      "group": "BMW",
+      "name": "BMW i7 eDrive50 (101.7 kWh)",
+      "battery_kwh": 101.7,
+      "eff_km_kwh": 5.3,
+      "charging": {
+        "wh_mi": 300,
+        "curve": "bmw_clar_200",
+        "top_mph": 130,
+        "top_kmh": 209,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_ix_xdrive45",
+      "group": "BMW",
+      "name": "BMW iX xDrive45 (94.8 kWh)",
+      "battery_kwh": 94.8,
+      "eff_km_kwh": 5.2,
+      "charging": {
+        "wh_mi": 310,
+        "curve": "bmw_clar_200",
+        "top_mph": 124,
+        "top_kmh": 200,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_ix_xdrive60",
+      "group": "BMW",
+      "name": "BMW iX xDrive60 (109.1 kWh)",
+      "battery_kwh": 109.1,
+      "eff_km_kwh": 5.4,
+      "charging": {
+        "wh_mi": 305,
+        "curve": "bmw_clar_200",
+        "top_mph": 124,
+        "top_kmh": 200,
+        "est": true
+      }
+    },
+    {
+      "id": "bmw_ix_m70",
+      "group": "BMW",
+      "name": "BMW iX M70 xDrive (108.9 kWh)",
+      "battery_kwh": 108.9,
+      "eff_km_kwh": 4.6,
+      "charging": {
+        "wh_mi": 350,
+        "curve": "bmw_clar_200",
+        "top_mph": 155,
+        "top_kmh": 250,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_cla_250",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes CLA 250+ EQ (85 kWh - 800V)",
+      "battery_kwh": 85.0,
+      "eff_km_kwh": 7.2,
+      "charging": {
+        "wh_mi": 235,
+        "curve": "mercedes_mma_320",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_cla_350",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes CLA 350 4MATIC EQ (85 kWh - 800V)",
+      "battery_kwh": 85.0,
+      "eff_km_kwh": 6.6,
+      "charging": {
+        "wh_mi": 255,
+        "curve": "mercedes_mma_320",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqa_250",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQA 250 (66.5 kWh)",
+      "battery_kwh": 66.5,
+      "eff_km_kwh": 6.3,
+      "charging": {
+        "wh_mi": 265,
+        "curve": "mercedes_eq_110",
+        "top_mph": 100,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqb_250",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQB 250+ (70.5 kWh)",
+      "battery_kwh": 70.5,
+      "eff_km_kwh": 5.7,
+      "charging": {
+        "wh_mi": 290,
+        "curve": "mercedes_eq_110",
+        "top_mph": 100,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqb_350",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQB 350 4MATIC (70.5 kWh)",
+      "battery_kwh": 70.5,
+      "eff_km_kwh": 5.1,
+      "charging": {
+        "wh_mi": 320,
+        "curve": "mercedes_eq_110",
+        "top_mph": 100,
+        "top_kmh": 160,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqe_350",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes-Benz EQE 350+ (90.6 kWh)",
+      "battery_kwh": 90.6,
+      "eff_km_kwh": 5.9,
+      "charging": {
+        "wh_mi": 280,
+        "curve": "mercedes_eq_200",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqe_suv_350",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQE 350+ SUV (90.6 kWh)",
+      "battery_kwh": 90.6,
+      "eff_km_kwh": 5.4,
+      "charging": {
+        "wh_mi": 300,
+        "curve": "mercedes_eq_200",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqs_450",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQS 450+ (118 kWh)",
+      "battery_kwh": 118.0,
+      "eff_km_kwh": 5.6,
+      "charging": {
+        "wh_mi": 270,
+        "curve": "mercedes_eq_200",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqs_580",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQS 580 4MATIC (118 kWh)",
+      "battery_kwh": 118.0,
+      "eff_km_kwh": 5.2,
+      "charging": {
+        "wh_mi": 295,
+        "curve": "mercedes_eq_200",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqs_suv_450",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQS 450+ SUV (108.4 kWh)",
+      "battery_kwh": 108.4,
+      "eff_km_kwh": 4.9,
+      "charging": {
+        "wh_mi": 315,
+        "curve": "mercedes_eq_200",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqs_suv_580",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQS 580 4MATIC SUV (108.4 kWh)",
+      "battery_kwh": 108.4,
+      "eff_km_kwh": 4.6,
+      "charging": {
+        "wh_mi": 335,
+        "curve": "mercedes_eq_200",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_eqv_300",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes EQV 300 (90 kWh)",
+      "battery_kwh": 90.0,
+      "eff_km_kwh": 4.3,
+      "charging": {
+        "wh_mi": 350,
+        "curve": "mercedes_eq_110",
+        "top_mph": 87,
+        "top_kmh": 140,
+        "est": true
+      }
+    },
+    {
+      "id": "mercedes_g580",
+      "group": "Mercedes-Benz",
+      "name": "Mercedes G 580 EQ (116 kWh)",
+      "battery_kwh": 116.0,
+      "eff_km_kwh": 3.1,
+      "charging": {
+        "wh_mi": 490,
+        "curve": "mercedes_eq_200",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_q4_45_etron",
+      "group": "Audi",
+      "name": "Audi Q4 45 e-tron (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 6.0,
+      "charging": {
+        "wh_mi": 285,
+        "curve": "meb_175",
+        "top_mph": 111,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_q4_55_quattro",
+      "group": "Audi",
+      "name": "Audi Q4 55 e-tron quattro (77 kWh)",
+      "battery_kwh": 77.0,
+      "eff_km_kwh": 5.4,
+      "charging": {
+        "wh_mi": 310,
+        "curve": "meb_175",
+        "top_mph": 112,
+        "top_kmh": 180,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_q6_etron",
+      "group": "Audi",
+      "name": "Audi Q6 e-tron (94.4 kWh - 800V)",
+      "battery_kwh": 94.4,
+      "eff_km_kwh": 5.9,
+      "charging": {
+        "wh_mi": 285,
+        "curve": "ppe_800v",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_q6_quattro",
+      "group": "Audi",
+      "name": "Audi Q6 e-tron quattro (94.4 kWh - 800V)",
+      "battery_kwh": 94.4,
+      "eff_km_kwh": 5.6,
+      "charging": {
+        "wh_mi": 300,
+        "curve": "ppe_800v",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_sq6_etron",
+      "group": "Audi",
+      "name": "Audi SQ6 e-tron (94.4 kWh - 800V)",
+      "battery_kwh": 94.4,
+      "eff_km_kwh": 5.0,
+      "charging": {
+        "wh_mi": 330,
+        "curve": "ppe_800v",
+        "top_mph": 143,
+        "top_kmh": 230,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_a6_etron",
+      "group": "Audi",
+      "name": "Audi A6 e-tron (94.4 kWh - 800V)",
+      "battery_kwh": 94.4,
+      "eff_km_kwh": 7.0,
+      "charging": {
+        "wh_mi": 240,
+        "curve": "ppe_800v",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_a6_etron_quattro",
+      "group": "Audi",
+      "name": "Audi A6 e-tron quattro (94.4 kWh - 800V)",
+      "battery_kwh": 94.4,
+      "eff_km_kwh": 6.5,
+      "charging": {
+        "wh_mi": 260,
+        "curve": "ppe_800v",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_s6_etron",
+      "group": "Audi",
+      "name": "Audi S6 e-tron (94.4 kWh - 800V)",
+      "battery_kwh": 94.4,
+      "eff_km_kwh": 5.9,
+      "charging": {
+        "wh_mi": 285,
+        "curve": "ppe_800v",
+        "top_mph": 149,
+        "top_kmh": 240,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_q8_55_etron",
+      "group": "Audi",
+      "name": "Audi Q8 55 e-tron (106 kWh)",
+      "battery_kwh": 106.0,
+      "eff_km_kwh": 4.6,
+      "charging": {
+        "wh_mi": 340,
+        "curve": "etron_q8_170",
+        "top_mph": 124,
+        "top_kmh": 200,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_sq8_etron",
+      "group": "Audi",
+      "name": "Audi SQ8 e-tron (106 kWh)",
+      "battery_kwh": 106.0,
+      "eff_km_kwh": 4.2,
+      "charging": {
+        "wh_mi": 360,
+        "curve": "etron_q8_170",
+        "top_mph": 130,
+        "top_kmh": 210,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_s_etron_gt",
+      "group": "Audi",
+      "name": "Audi S e-tron GT (97 kWh - 800V)",
+      "battery_kwh": 97.0,
+      "eff_km_kwh": 5.1,
+      "charging": {
+        "wh_mi": 290,
+        "curve": "taycan_800v",
+        "top_mph": 152,
+        "top_kmh": 245,
+        "est": true
+      }
+    },
+    {
+      "id": "audi_rs_etron_gt",
+      "group": "Audi",
+      "name": "Audi RS e-tron GT Perf. (105 kWh - 800V)",
+      "battery_kwh": 105.0,
+      "eff_km_kwh": 4.6,
+      "charging": {
+        "wh_mi": 320,
+        "curve": "taycan_800v",
+        "top_mph": 155,
+        "top_kmh": 250,
+        "est": true
+      }
+    },
+    {
+      "id": "custom",
+      "group": "Custom",
+      "name": "Custom / Manual Vehicle Entry",
+      "battery_kwh": 75.0,
+      "eff_km_kwh": 6.0,
+      "custom": true
+    }
+  ]
+}

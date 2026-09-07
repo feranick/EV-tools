@@ -59,6 +59,16 @@
             box-shadow: 0 3px 8px rgba(79, 70, 229, 0.3);
         }
 
+        .app-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 20px;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
         /* Unused slider styles are still here for completeness if you add a slider later */
         input[type=range] {
             -webkit-appearance: none;
@@ -103,12 +113,35 @@
     </button>
 
 
+    <footer class="app-footer">
+        <span id="app-version">&hellip;</span>
+    </footer>
+
     <script>
+        const VERSION_URL = './version.json';
+
 // JavaScript function to handle the redirection
         function redirectToPage(pageUrl) {
             // window.location.href changes the browser's current page
             window.location.href = pageUrl;
         }
+
+        // Single source of truth for the app version: /version.json
+        async function loadVersion() {
+            const el = document.getElementById('app-version');
+            if (!el) return;
+            try {
+                const res = await fetch(VERSION_URL, { cache: 'no-cache' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const v = await res.json();
+                el.textContent = `v${v.version}`;
+            } catch (e) {
+                console.warn('Version load failed:', e);
+                el.textContent = 'version unavailable';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadVersion);
     </script>
 </body>
 </html>
